@@ -1,40 +1,21 @@
-local player = game.Player.LocalPlayer
+local player = game.Players.LocalPlayer
 
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/jensonhirst/Orion/main/source')))()
 
-local Window = OrionLib:MakeWindow({Name = "Dr4gonHub", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+local Window = OrionLib:MakeWindow({
+    Name = "Dr4gonHub",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "OrionTest"
+})
 
---[[
-Name = <string> - The name of the UI.
-HidePremium = <bool> - Whether or not the user details shows Premium status or not.
-SaveConfig = <bool> - Toggles the config saving in the UI.
-ConfigFolder = <string> - The name of the folder where the configs are saved.
-IntroEnabled = <bool> - Whether or not to show the intro animation.
-IntroText = <string> - Text to show in the intro animation.
-IntroIcon = <string> - URL to the image you want to use in the intro animation.
-Icon = <string> - URL to the image you want displayed on the window.
-CloseCallback = <function> - Function to execute when the window is closed.
-]]
-
-local Tab = Window:MakeTab({
+local MiscTab = Window:MakeTab({
 	Name = "Misc",
 	Icon = "rbxassetid://4483345998",
 	PremiumOnly = false
 })
 
---[[
-Name = <string> - The name of the tab.
-Icon = <string> - The icon of the tab.
-PremiumOnly = <bool> - Makes the tab accessible to Sirus Premium users only.
-]]
-
-local Section = Tab:AddSection({
-	Name = "Section"
-})
-
---[[
-Name = <string> - The name of the section.
-]]
+MiscTab:AddSection({Name = "Section"})
 
 OrionLib:MakeNotification({
 	Name = "Inicializando...",
@@ -43,64 +24,39 @@ OrionLib:MakeNotification({
 	Time = 5
 })
 
---[[
-Title = <string> - The title of the notification.
-Content = <string> - The content of the notification.
-Image = <string> - The icon of the notification.
-Time = <number> - The duration of the notfication.
-]]
-
-Tab:AddButton({
+MiscTab:AddButton({
 	Name = "Speed",
 	Callback = function()
-      		player.Character.Humanoidid.WalkSpeed = 500
+      	player.Character.Humanoid.WalkSpeed = 500
   	end    
 })
 
---[[
-Name = <string> - The name of the button.
-Callback = <function> - The function of the button.
-]]
-
-Tab:AddButton({
+MiscTab:AddButton({
 	Name = "Jump",
 	Callback = function()
-      		player.Character.Humanoidid.JumpPower = 50
+      	player.Character.Humanoid.JumpPower = 50
   	end    
 })
 
---[[
-Name = <string> - The name of the button.
-Callback = <function> - The function of the button.
-]]
-
--- Cria um botão
-Tab:AddButton({
+MiscTab:AddButton({
     Name = "Ajustar Iluminação",
     Callback = function()
         local Lighting = game:GetService("Lighting")
-        Lighting.Brightness = 1.5 -- Define a intensidade da iluminação
-        Lighting.OutdoorAmbient = Color3.new(0.2, 0.2, 0.2) -- Define a tonalidade para áreas externas
-        Lighting.Ambient = Color3.new(0.5, 0.5, 0.5) -- Define a tonalidade para toda a experiência
+        Lighting.Brightness = 1.5
+        Lighting.OutdoorAmbient = Color3.new(0.2, 0.2, 0.2)
+        Lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
     end
 })
 
--- Função para dar a habilidade FX3 ao jogador
 local function giveFX3ToPlayer(player)
-    -- Aqui você define como a habilidade FX3 é dada ao jogador
-    -- Por exemplo, você pode adicionar um valor booleano ao Player ou adicionar uma tool ao Backpack
-
-    -- Exemplo: Adiciona um valor booleano ao Player
     local playerData = Instance.new("BoolValue")
     playerData.Name = "HasFX3"
     playerData.Parent = player
 
-    -- Exemplo: Adiciona uma tool ao Backpack
     local tool = Instance.new("Tool")
     tool.Name = "FX3 Tool"
     tool.Parent = player.Backpack
 
-    -- Você também pode adicionar scripts à tool para definir a funcionalidade da habilidade
     local toolScript = Instance.new("LocalScript")
     toolScript.Parent = tool
 
@@ -110,102 +66,61 @@ local function giveFX3ToPlayer(player)
 
         tool.Activated:Connect(function()
             print("FX3 ativada!")
-            -- Aqui você define o que acontece quando a habilidade FX3 é ativada
         end)
     ]]
 end
 
--- Cria um botão
-Tab:AddButton({
+MiscTab:AddButton({
     Name = "FX3",
     Callback = function()
-        local player = game.Players.LocalPlayer
         giveFX3ToPlayer(player)
     end
 })
 
--- Função para teletransportar o jogador
 local function teleportPlayer(player, position)
     local character = player.Character
     if character then
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-        if humanoidRootPart then
-            humanoidRootPart.CFrame = CFrame.new(position)
+        local hrp = character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(position)
         else
             warn("HumanoidRootPart não encontrado")
         end
     else
         warn("Personagem não encontrado")
     end
-}
+end
 
--- Posição de destino (você pode ajustar esta posição conforme necessário)
 local destinationPosition = Vector3.new(0, 50, 0)
 
--- Cria um botão
-Tab:AddButton({
+MiscTab:AddButton({
     Name = "Teletransportar",
     Callback = function()
-        local player = game.Players.LocalPlayer
         teleportPlayer(player, destinationPosition)
     end
 })
 
-local Tab = Window:MakeTab({
+-- Segunda aba: Grow a Garden
+local GardenTab = Window:MakeTab({
 	Name = "Grow a garden",
 	Icon = "rbxassetid://4483345998",
 	PremiumOnly = false
 })
 
---[[
-Name = <string> - The name of the tab.
-Icon = <string> - The icon of the tab.
-PremiumOnly = <bool> - Makes the tab accessible to Sirus Premium users only.
-]]
+GardenTab:AddSection({Name = "Section"})
 
-local Section = Tab:AddSection({
-	Name = "Section"
-})
-
---[[
-Name = <string> - The name of the section.
-]]
-
-Tab:AddButton({
+GardenTab:AddButton({
 	Name = "Speed X hub",
 	Callback = function()
- local function executarScript()
-    -- Carregue o script
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
-end
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+	end
+})
 
--- Adicione um evento de clique ao botão
-botao.Touched:Connect(function(hit)
-    -- Verifique se o botão foi clicado por um jogador
-    if hit.Parent:FindFirstChild("Humanoid") then
-        -- Execute a função para executar o outro script
-        executarScript()
-    end
-end)
-
---[[
-Name = <string> - The name of the button.
-Callback = <function> - The function of the button.
-]]
-
-Tab:AddButton({
+GardenTab:AddButton({
 	Name = "Seed Spawner",
 	Callback = function()
- local function executarScript()
-    -- Carregue o script
-    loadstring(game:HttpGet("https://codeberg.org/twentys2/Scripts/raw/branch/main/Grow-A-Garden"))()
-end
+        loadstring(game:HttpGet("https://codeberg.org/twentys2/Scripts/raw/branch/main/Grow-A-Garden"))()
+	end
+})
 
--- Adicione um evento de clique ao botão
-botao.Touched:Connect(function(hit)
-    -- Verifique se o botão foi clicado por um jogador
-    if hit.Parent:FindFirstChild("Humanoid") then
-        -- Execute a função para executar o outro script
-        executarScript()
-    end
-end)
+OrionLib:Init()
