@@ -1,14 +1,17 @@
-local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/UltraStuff/scripts2/main/orionfixed.lua"))()
+-- Garantir que OrionLib seja carregada corretamente
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()
 
+-- Obter o jogador
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Criar janela
 local Window = OrionLib:MakeWindow({
     Name = "Dr4gonHub",
     HidePremium = false,
-    SaveConfig = true,
-    ConfigFolder = "Dr4gonHubConfig",
-    IntroEnabled = false
+    SaveConfig = false,
+    ConfigFolder = "Dr4gonHub"
 })
-
-local player = game.Players.LocalPlayer
 
 -- Tab: Misc
 local miscTab = Window:MakeTab({
@@ -17,86 +20,86 @@ local miscTab = Window:MakeTab({
     PremiumOnly = false
 })
 
-miscTab:AddSection({ Name = "Funções Diversas" })
+miscTab:AddSection({Name = "Funções Diversas"})
 
+-- Botão: Speed
 miscTab:AddButton({
-    Name = "Speed",
+    Name = "Speed (150)",
     Callback = function()
-        local char = player.Character or player.CharacterAdded:Wait()
-        local hum = char:FindFirstChildWhichIsA("Humanoid")
-        if hum then
-            hum.WalkSpeed = 100
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.WalkSpeed = 150
         end
     end
 })
 
+-- Botão: JumpPower
 miscTab:AddButton({
-    Name = "Jump",
+    Name = "JumpPower (100)",
     Callback = function()
-        local char = player.Character or player.CharacterAdded:Wait()
-        local hum = char:FindFirstChildWhichIsA("Humanoid")
-        if hum then
-            hum.JumpPower = 100
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.JumpPower = 100
         end
     end
 })
 
+-- Botão: Iluminação
 miscTab:AddButton({
     Name = "Ajustar Iluminação",
     Callback = function()
-        local Lighting = game:GetService("Lighting")
-        Lighting.Brightness = 2
-        Lighting.OutdoorAmbient = Color3.new(0.5, 0.5, 0.5)
-        Lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
+        local lighting = game:GetService("Lighting")
+        lighting.Brightness = 2
+        lighting.OutdoorAmbient = Color3.new(0.4, 0.4, 0.4)
+        lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
     end
 })
 
+-- Botão: FX3 Simulado
 miscTab:AddButton({
-    Name = "FX3",
+    Name = "FX3 (simulado)",
     Callback = function()
         local tool = Instance.new("Tool")
         tool.Name = "FX3 Tool"
         tool.RequiresHandle = false
-        tool.Parent = player.Backpack
+        tool.CanBeDropped = false
 
-        local scriptFx = Instance.new("LocalScript")
-        scriptFx.Source = [[
+        local scriptFX = Instance.new("LocalScript")
+        scriptFX.Source = [[
             local tool = script.Parent
             tool.Activated:Connect(function()
                 print("FX3 ativada!")
-                -- ação da FX3 aqui
             end)
         ]]
-        scriptFx.Parent = tool
+        scriptFX.Parent = tool
+        tool.Parent = player.Backpack
     end
 })
 
+-- Botão: Teleporte
 miscTab:AddButton({
     Name = "Teletransportar",
     Callback = function()
-        local dest = Vector3.new(0, 50, 0)
-        local char = player.Character or player.CharacterAdded:Wait()
-        local root = char:FindFirstChild("HumanoidRootPart")
+        local root = character:FindFirstChild("HumanoidRootPart")
         if root then
-            root.CFrame = CFrame.new(dest)
+            root.CFrame = CFrame.new(0, 50, 0)
         end
     end
 })
 
+-- Botão: Resetar Status
 miscTab:AddButton({
     Name = "Resetar Status",
     Callback = function()
-        local char = player.Character or player.CharacterAdded:Wait()
-        local hum = char:FindFirstChildWhichIsA("Humanoid")
-        if hum then
-            hum.WalkSpeed = 16
-            hum.JumpPower = 50
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            local humanoid = player.Character.Humanoid
+            humanoid.WalkSpeed = 16
+            humanoid.JumpPower = 50
         end
     end
 })
 
+-- Anti-AFK
 miscTab:AddButton({
-    Name = "Anti-AFK",
+    Name = "Ativar Anti-AFK",
     Callback = function()
         local vu = game:GetService("VirtualUser")
         player.Idled:Connect(function()
@@ -105,8 +108,8 @@ miscTab:AddButton({
             vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
         end)
         OrionLib:MakeNotification({
-            Name = "Anti-AFK Ativado",
-            Content = "Você não será desconectado por inatividade.",
+            Name = "Anti-AFK",
+            Content = "Ativado com sucesso!",
             Time = 5
         })
     end
@@ -114,17 +117,17 @@ miscTab:AddButton({
 
 -- Tab: Grow a Garden
 local gardenTab = Window:MakeTab({
-    Name = "Grow a Garden",
+    Name = "Grow a garden",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
-gardenTab:AddSection({ Name = "Scripts Externos" })
+gardenTab:AddSection({Name = "Scripts Externos"})
 
 gardenTab:AddButton({
     Name = "Speed X Hub",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua"))()
     end
 })
 
@@ -139,9 +142,8 @@ gardenTab:AddButton({
 OrionLib:MakeNotification({
     Name = "Dr4gonHub",
     Content = "Bem-vindo ao Dr4gonHub!",
-    Image = "rbxassetid://4483345998",
     Time = 5
 })
 
--- Inicializar
+-- Inicializar interface
 OrionLib:Init()
