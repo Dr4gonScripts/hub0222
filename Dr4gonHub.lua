@@ -1,133 +1,134 @@
 --[[
-  🐉 Dr4gonHub Premium - Design Moderno
-  Abas laterais com ícones + Área de loja central
+  🐉 Dr4gonHub Premium - Interface Avançada
+  Estilo BuiltByBit com funcionalidades completas
 ]]
 
 local Player = game:GetService("Players").LocalPlayer
 local Mouse = Player:GetMouse()
 
--- ===== CONFIGURAÇÃO DO TEMA DR4GONHUB =====
+-- Configuração do Tema
 local Theme = {
     Colors = {
-        Primary = Color3.fromRGB(188, 10, 28),     -- Vermelho Dr4gon
-        Secondary = Color3.fromRGB(255, 212, 96),  -- Dourado
-        Background = Color3.fromRGB(15, 15, 20),   -- Preto-azulado
+        Main = Color3.fromRGB(30, 30, 40),
+        Header = Color3.fromRGB(188, 10, 28), -- Vermelho Dr4gon
+        TabActive = Color3.fromRGB(50, 50, 65),
+        TabInactive = Color3.fromRGB(40, 40, 55),
         Text = Color3.fromRGB(240, 240, 240),
-        Button = Color3.fromRGB(35, 40, 45),
-        Highlight = Color3.fromRGB(220, 50, 50)    -- Vermelho vibrante
+        Button = Color3.fromRGB(50, 55, 70),
+        ButtonHover = Color3.fromRGB(60, 65, 80),
+        Accent = Color3.fromRGB(255, 212, 96) -- Dourado
     },
     Images = {
-        Logo = "rbxassetid://14903454321",        -- Logo do Dr4gonHub
-        GameIcons = {
-            "rbxassetid://14912345678",           -- Blox Fruits
-            "rbxassetid://14912345679",           -- Brookhaven
-            "rbxassetid://14912345680"            -- Arsenal
-        }
+        Close = "rbxassetid://14912345684",
+        Minimize = "rbxassetid://14912345685"
     }
 }
 
--- ===== CRIAÇÃO DA INTERFACE =====
+-- Criação da Interface Principal
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Dr4gonHubUI"
 ScreenGui.Parent = game:GetService("CoreGui")
 
--- Frame principal (estilo moderno)
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0.35, 0, 0.7, 0)
-MainFrame.Position = UDim2.new(0.05, 0, 0.15, 0)
-MainFrame.BackgroundColor3 = Theme.Colors.Background
+MainFrame.Size = UDim2.new(0.35, 0, 0.6, 0)
+MainFrame.Position = UDim2.new(0.5, -175, 0.5, -150)
+MainFrame.BackgroundColor3 = Theme.Colors.Main
 MainFrame.ClipsDescendants = true
 MainFrame.Parent = ScreenGui
 
--- Borda estilizada
-local FrameStroke = Instance.new("UIStroke")
-FrameStroke.Color = Theme.Colors.Primary
-FrameStroke.Thickness = 2
-FrameStroke.Parent = MainFrame
+-- Cabeçalho com controles
+local Header = Instance.new("Frame")
+Header.Size = UDim2.new(1, 0, 0, 30)
+Header.BackgroundColor3 = Theme.Colors.Header
+Header.Parent = MainFrame
 
--- ===== BARRA LATERAL DE ABAS =====
-local TabBar = Instance.new("Frame")
-TabBar.Size = UDim2.new(0.18, 0, 1, 0)          -- Mais larga para ícones
-TabBar.BackgroundColor3 = Theme.Colors.Primary
-TabBar.Parent = MainFrame
+local Title = Instance.new("TextLabel")
+Title.Text = "DR4GONHUB PREMIUM"
+Title.Size = UDim2.new(0.7, 0, 1, 0)
+Title.Position = UDim2.new(0.15, 0, 0, 0)
+Title.TextColor3 = Theme.Colors.Text
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 14
+Title.Parent = Header
 
-local TabListLayout = Instance.new("UIListLayout")
-TabListLayout.FillDirection = Enum.FillDirection.Vertical
-TabListLayout.Padding = UDim.new(0, 5)
-TabListLayout.Parent = TabBar
+-- Botões de controle
+local CloseButton = Instance.new("ImageButton")
+CloseButton.Image = Theme.Images.Close
+CloseButton.Size = UDim2.new(0, 25, 0, 25)
+CloseButton.Position = UDim2.new(1, -30, 0, 2)
+CloseButton.BackgroundTransparency = 1
+CloseButton.Parent = Header
 
--- ===== ÁREA DE CONTEÚDO =====
-local ContentFrame = Instance.new("Frame")
-ContentFrame.Size = UDim2.new(0.82, 0, 1, 0)
-ContentFrame.Position = UDim2.new(0.18, 0, 0, 0)
-ContentFrame.BackgroundColor3 = Theme.Colors.Background
+local MinimizeButton = Instance.new("ImageButton")
+MinimizeButton.Image = Theme.Images.Minimize
+MinimizeButton.Size = UDim2.new(0, 25, 0, 25)
+MinimizeButton.Position = UDim2.new(1, -60, 0, 2)
+MinimizeButton.BackgroundTransparency = 1
+MinimizeButton.Parent = Header
+
+-- Barra de Abas
+local TabContainer = Instance.new("Frame")
+TabContainer.Size = UDim2.new(1, 0, 0, 40)
+TabContainer.Position = UDim2.new(0, 0, 0, 30)
+TabContainer.BackgroundColor3 = Theme.Colors.Main
+TabContainer.Parent = MainFrame
+
+local TabList = Instance.new("UIListLayout")
+TabList.FillDirection = Enum.FillDirection.Horizontal
+TabList.Padding = UDim.new(0, 2)
+TabList.Parent = TabContainer
+
+-- Área de Conteúdo
+local ContentFrame = Instance.new("ScrollingFrame")
+ContentFrame.Size = UDim2.new(1, -10, 1, -80)
+ContentFrame.Position = UDim2.new(0, 5, 0, 75)
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.ScrollBarThickness = 8
+ContentFrame.ScrollBarImageColor3 = Theme.Colors.Accent
 ContentFrame.Parent = MainFrame
 
--- Cabeçalho (estilo Dr4gon)
-local Header = Instance.new("TextLabel")
-Header.Text = "DR4GONHUB PREMIUM"
-Header.Size = UDim2.new(1, 0, 0, 50)
-Header.Position = UDim2.new(0, 0, 0, 0)
-Header.TextColor3 = Theme.Colors.Secondary
-Header.BackgroundColor3 = Theme.Colors.Primary
-Header.Font = Enum.Font.GothamBlack
-Header.TextSize = 18
-Header.Parent = ContentFrame
+local ContentLayout = Instance.new("UIListLayout")
+ContentLayout.Padding = UDim.new(0, 10)
+ContentLayout.Parent = ContentFrame
 
--- Divisor dourado
-local Divider = Instance.new("Frame")
-Divider.Size = UDim2.new(1, 0, 0, 2)
-Divider.Position = UDim2.new(0, 0, 0, 50)
-Divider.BackgroundColor3 = Theme.Colors.Secondary
-Divider.BorderSizePixel = 0
-Divider.Parent = ContentFrame
-
--- ===== SISTEMA DE ABAS COM ÍCONES =====
-local currentTab = nil
+-- Sistema de Abas
 local tabs = {}
+local currentTab = nil
 
-local function CreateGameTab(gameName, iconId, index)
-    local tabButton = Instance.new("ImageButton")
-    tabButton.Image = Theme.Images.GameIcons[index]
-    tabButton.Size = UDim2.new(0.8, 0, 0, 70)  -- Botões quadrados
-    tabButton.Position = UDim2.new(0.1, 0, 0, 10 + (75 * index))
-    tabButton.BackgroundColor3 = Theme.Colors.Button
-    tabButton.Parent = TabBar
+local function CreateTab(tabName)
+    local tabButton = Instance.new("TextButton")
+    tabButton.Text = tabName
+    tabButton.Size = UDim2.new(0.2, 0, 1, 0)
+    tabButton.BackgroundColor3 = Theme.Colors.TabInactive
+    tabButton.TextColor3 = Theme.Colors.Text
+    tabButton.Font = Enum.Font.GothamMedium
+    tabButton.TextSize = 13
+    tabButton.Parent = TabContainer
     
-    -- Efeito de hover
-    tabButton.MouseEnter:Connect(function()
-        game:GetService("TweenService"):Create(
-            tabButton,
-            TweenInfo.new(0.2),
-            {BackgroundColor3 = Theme.Colors.Highlight}
-        ):Play()
-    end)
-    
-    tabButton.MouseLeave:Connect(function()
-        game:GetService("TweenService"):Create(
-            tabButton,
-            TweenInfo.new(0.2),
-            {BackgroundColor3 = Theme.Colors.Button}
-        ):Play()
-    end)
-
-    local tabContent = Instance.new("ScrollingFrame")
-    tabContent.Size = UDim2.new(1, 0, 1, -60)
-    tabContent.Position = UDim2.new(0, 0, 0, 60)
+    local tabContent = Instance.new("Frame")
+    tabContent.Size = UDim2.new(1, 0, 0, 0)
     tabContent.BackgroundTransparency = 1
+    tabContent.AutomaticSize = Enum.AutomaticSize.Y
     tabContent.Visible = false
-    tabContent.ScrollBarThickness = 6
     tabContent.Parent = ContentFrame
-
+    
+    local tabLayout = Instance.new("UIListLayout")
+    tabLayout.Padding = UDim.new(0, 10)
+    tabLayout.Parent = tabContent
+    
     local tab = {
         button = tabButton,
         content = tabContent,
         Show = function()
             if currentTab then
                 currentTab.content.Visible = false
+                currentTab.button.BackgroundColor3 = Theme.Colors.TabInactive
             end
             currentTab = tab
             tab.content.Visible = true
+            tab.button.BackgroundColor3 = Theme.Colors.TabActive
+            ContentFrame.CanvasPosition = Vector2.new(0, 0)
         end
     }
     
@@ -136,57 +137,105 @@ local function CreateGameTab(gameName, iconId, index)
     return tab
 end
 
--- ===== EXEMPLO DE ABA DE LOJA =====
-local ShopTab = CreateGameTab("Shop", 1, 1)
+-- Função para criar botões
+local function CreateButton(parent, text, description, callback)
+    local buttonFrame = Instance.new("Frame")
+    buttonFrame.Size = UDim2.new(1, -10, 0, 60)
+    buttonFrame.BackgroundColor3 = Theme.Colors.Button
+    buttonFrame.Parent = parent
+    
+    local button = Instance.new("TextButton")
+    button.Text = text
+    button.Size = UDim2.new(1, 0, 0.6, 0)
+    button.Position = UDim2.new(0, 0, 0, 0)
+    button.BackgroundTransparency = 1
+    button.TextColor3 = Theme.Colors.Text
+    button.Font = Enum.Font.GothamMedium
+    button.TextSize = 14
+    button.TextXAlignment = Enum.TextXAlignment.Left
+    button.Parent = buttonFrame
+    
+    local desc = Instance.new("TextLabel")
+    desc.Text = description
+    desc.Size = UDim2.new(1, -10, 0.4, 0)
+    desc.Position = UDim2.new(0, 10, 0.6, 0)
+    desc.TextColor3 = Color3.fromRGB(180, 180, 180)
+    desc.BackgroundTransparency = 1
+    desc.Font = Enum.Font.Gotham
+    desc.TextSize = 12
+    desc.TextXAlignment = Enum.TextXAlignment.Left
+    desc.Parent = buttonFrame
+    
+    button.MouseEnter:Connect(function()
+        buttonFrame.BackgroundColor3 = Theme.Colors.ButtonHover
+    end)
+    
+    button.MouseLeave:Connect(function()
+        buttonFrame.BackgroundColor3 = Theme.Colors.Button
+    end)
+    
+    button.MouseButton1Click:Connect(callback)
+    
+    return buttonFrame
+end
 
--- Título da seção
-local ShopTitle = Instance.new("TextLabel")
-ShopTitle.Text = "ITEM SHOP"
-ShopTitle.Size = UDim2.new(1, 0, 0, 40)
-ShopTitle.Position = UDim2.new(0, 20, 0, 10)
-ShopTitle.TextColor3 = Theme.Colors.Secondary
-ShopTitle.BackgroundTransparency = 1
-ShopTitle.Font = Enum.Font.GothamBold
-ShopTitle.TextSize = 16
-ShopTitle.TextXAlignment = Enum.TextXAlignment.Left
-ShopTitle.Parent = ShopTab.content
+-- Criar abas e conteúdo
+local MiscTab = CreateTab("MISC")
+CreateButton(MiscTab.content, "Fly Hack", "Toggle flight with keybind", function()
+    loadstring(game:HttpGet("https://example.com/fly.lua"))()
+end)
 
--- Item de exemplo (Bait Crate)
-local ItemFrame1 = Instance.new("Frame")
-ItemFrame1.Size = UDim2.new(0.9, 0, 0, 80)
-ItemFrame1.Position = UDim2.new(0.05, 0, 0, 60)
-ItemFrame1.BackgroundColor3 = Theme.Colors.Button
-ItemFrame1.Parent = ShopTab.content
+CreateButton(MiscTab.content, "Speed Hack", "Adjust movement speed", function()
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 50
+end)
 
-local ItemName1 = Instance.new("TextLabel")
-ItemName1.Text = "Bait Crate"
-ItemName1.Size = UDim2.new(0.6, 0, 0, 30)
-ItemName1.Position = UDim2.new(0.1, 0, 0, 10)
-ItemName1.TextColor3 = Theme.Colors.Text
-ItemName1.Font = Enum.Font.GothamMedium
-ItemName1.TextSize = 14
-ItemName1.TextXAlignment = Enum.TextXAlignment.Left
-ItemName1.Parent = ItemFrame1
+local BloxTab = CreateTab("BLOX")
+CreateButton(BloxTab.content, "Auto Farm", "Automatically farm levels", function()
+    print("Blox Fruits farm activated")
+end)
 
--- Botão de compra
-local BuyButton1 = Instance.new("TextButton")
-BuyButton1.Text = "COMPRAR"
-BuyButton1.Size = UDim2.new(0.3, 0, 0, 30)
-BuyButton1.Position = UDim2.new(0.6, 0, 0, 40)
-BuyButton1.BackgroundColor3 = Theme.Colors.Primary
-BuyButton1.TextColor3 = Color3.new(1, 1, 1)
-BuyButton1.Font = Enum.Font.GothamBold
-BuyButton1.TextSize = 12
-BuyButton1.Parent = ItemFrame1
+local BrookTab = CreateTab("BROO")
+CreateButton(BrookTab.content, "Auto Run", "Continuous running", function()
+    print("Brookhaven auto run activated")
+end)
 
--- ===== INICIALIZAÇÃO =====
-ShopTab.Show()
+local ArseTab = CreateTab("ARSE")
+CreateButton(ArseTab.content, "Aimbot", "Improved aiming", function()
+    print("Arsenal aimbot activated")
+end)
+
+local KingTab = CreateTab("KING")
+CreateButton(KingTab.content, "Auto Raid", "Farm raids automatically", function()
+    print("King Legacy raid activated")
+end)
+
+-- Funções de Controle
+local minimized = false
+local originalSize = MainFrame.Size
+
+MinimizeButton.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    if minimized then
+        MainFrame.Size = UDim2.new(0.35, 0, 0, 30)
+    else
+        MainFrame.Size = originalSize
+    end
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+    -- O script continua rodando em background
+end)
+
+-- Inicialização
+MiscTab.Show()
 
 -- Efeito de entrada
+MainFrame.Position = UDim2.new(0.5, -175, 0, -400)
 game:GetService("TweenService"):Create(
     MainFrame,
-    TweenInfo.new(0.5),
-    {Position = UDim2.new(0.05, 0, 0.2, 0)}
+    TweenInfo.new(0.7, Enum.EasingStyle.Quint),
+    {Position = UDim2.new(0.5, -175, 0.5, -150)}
 ):Play()
 
 print("🐉 Dr4gonHub Premium - Interface carregada!")
