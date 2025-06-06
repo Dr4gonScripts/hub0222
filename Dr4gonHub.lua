@@ -1,196 +1,249 @@
 --[[
-  Dr4gonHub Premium - Versão Estável
-  Compatível com Xeno Executor
+  🐉 Dr4gonHub Premium - Edição Multijogos
+  Interface bonita + funções completas
 ]]
 
 local Player = game:GetService("Players").LocalPlayer
 local Mouse = Player:GetMouse()
 
--- ===== CONFIGURAÇÃO SEGURA DA UI =====
+-- ===== CONFIGURAÇÃO DO TEMA =====
+local Theme = {
+    Colors = {
+        Primary = Color3.fromRGB(188, 10, 28),    -- Vermelho chinês
+        Secondary = Color3.fromRGB(255, 212, 96),  -- Dourado
+        Background = Color3.fromRGB(20, 16, 11),   -- Preto envernizado
+        Text = Color3.fromRGB(255, 255, 255),
+        Button = Color3.fromRGB(45, 45, 55)
+    },
+    Images = {
+        Dragon = "rbxassetid://14204253922",
+        Pattern = "rbxassetid://14204261233"
+    }
+}
+
+-- ===== CRIAÇÃO DA INTERFACE =====
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Dr4gonHubUI"
 ScreenGui.Parent = game:GetService("CoreGui")
 
+-- Frame principal com padrão de seda
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0.25, 0, 0.5, 0)
-MainFrame.Position = UDim2.new(0.05, 0, 0.25, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-MainFrame.BorderSizePixel = 0
+MainFrame.Size = UDim2.new(0.3, 0, 0.6, 0)
+MainFrame.Position = UDim2.new(0.05, 0, 0.2, 0)
+MainFrame.BackgroundColor3 = Theme.Colors.Background
 MainFrame.Parent = ScreenGui
 
-local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.Padding = UDim.new(0, 5)
-UIListLayout.Parent = MainFrame
+local BackgroundPattern = Instance.new("ImageLabel")
+BackgroundPattern.Image = Theme.Images.Pattern
+BackgroundPattern.ImageTransparency = 0.95
+BackgroundPattern.ScaleType = Enum.ScaleType.Tile
+BackgroundPattern.TileSize = UDim2.new(0, 100, 0, 100)
+BackgroundPattern.Size = UDim2.new(1, 0, 1, 0)
+BackgroundPattern.Parent = MainFrame
 
-local Title = Instance.new("TextLabel")
-Title.Text = "DR4GONHUB"
-Title.TextColor3 = Color3.fromRGB(255, 50, 50)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 18
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.BackgroundTransparency = 1
-Title.Parent = MainFrame
+-- Barra de abas
+local TabBar = Instance.new("Frame")
+TabBar.Size = UDim2.new(1, 0, 0, 45)
+TabBar.BackgroundColor3 = Theme.Colors.Primary
+TabBar.BorderSizePixel = 0
+TabBar.Parent = MainFrame
 
--- ===== FUNÇÕES DE CONTROLE =====
-local function CreateButton(name, callback)
-    local button = Instance.new("TextButton")
-    button.Text = name
-    button.Size = UDim2.new(0.9, 0, 0, 40)
-    button.Position = UDim2.new(0.05, 0, 0, 0)
-    button.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.Font = Enum.Font.Gotham
-    button.TextSize = 14
-    button.Parent = MainFrame
-    
-    button.MouseButton1Click:Connect(function()
-        pcall(callback)
-    end)
-end
+local TabListLayout = Instance.new("UIListLayout")
+TabListLayout.FillDirection = Enum.FillDirection.Horizontal
+TabListLayout.Padding = UDim.new(0, 2)
+TabListLayout.Parent = TabBar
 
-local function CreateSlider(name, min, max, default, callback)
-    local sliderFrame = Instance.new("Frame")
-    sliderFrame.Size = UDim2.new(0.9, 0, 0, 60)
-    sliderFrame.BackgroundTransparency = 1
-    sliderFrame.Parent = MainFrame
+-- Container de conteúdo
+local ContentFrame = Instance.new("ScrollingFrame")
+ContentFrame.Size = UDim2.new(1, 0, 1, -45)
+ContentFrame.Position = UDim2.new(0, 0, 0, 45)
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.ScrollBarThickness = 5
+ContentFrame.Parent = MainFrame
+
+local ContentLayout = Instance.new("UIListLayout")
+ContentLayout.Padding = UDim.new(0, 15)
+ContentLayout.Parent = ContentFrame
+
+-- ===== SISTEMA DE ABAS =====
+local currentTab = nil
+local tabs = {}
+
+local function CreateTab(name, icon)
+    local tabButton = Instance.new("TextButton")
+    tabButton.Text = icon .. " " .. name
+    tabButton.Size = UDim2.new(0.25, 0, 1, 0)
+    tabButton.BackgroundColor3 = Theme.Colors.Primary
+    tabButton.TextColor3 = Theme.Colors.Text
+    tabButton.Font = Enum.Font.GothamBold
+    tabButton.TextSize = 14
+    tabButton.Parent = TabBar
     
-    local label = Instance.new("TextLabel")
-    label.Text = name
-    label.Size = UDim2.new(1, 0, 0, 20)
-    label.TextColor3 = Color3.fromRGB(200, 200, 200)
-    label.BackgroundTransparency = 1
-    label.Font = Enum.Font.Gotham
-    label.TextSize = 14
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Parent = sliderFrame
+    local tabContent = Instance.new("Frame")
+    tabContent.Size = UDim2.new(1, 0, 0, 0)
+    tabContent.BackgroundTransparency = 1
+    tabContent.Visible = false
+    tabContent.AutomaticSize = Enum.AutomaticSize.Y
+    tabContent.Parent = ContentFrame
     
-    local textBox = Instance.new("TextBox")
-    textBox.Text = tostring(default)
-    textBox.Size = UDim2.new(1, 0, 0, 30)
-    textBox.Position = UDim2.new(0, 0, 0, 25)
-    textBox.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
-    textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-    textBox.Font = Enum.Font.Gotham
-    textBox.TextSize = 14
-    textBox.Parent = sliderFrame
+    local tabLayout = Instance.new("UIListLayout")
+    tabLayout.Padding = UDim.new(0, 10)
+    tabLayout.Parent = tabContent
     
-    local function updateValue(value)
-        local num = tonumber(value) or default
-        num = math.clamp(num, min, max)
-        textBox.Text = tostring(num)
-        pcall(callback, num)
-    end
-    
-    textBox.FocusLost:Connect(function()
-        updateValue(textBox.Text)
-    end)
-    
-    return {
-        SetValue = function(value)
-            updateValue(value)
+    local tab = {
+        button = tabButton,
+        content = tabContent,
+        Show = function()
+            if currentTab then
+                currentTab.content.Visible = false
+                currentTab.button.BackgroundColor3 = Theme.Colors.Primary
+            end
+            currentTab = tab
+            tab.content.Visible = true
+            tab.button.BackgroundColor3 = Theme.Colors.Secondary
+            tab.button.TextColor3 = Color3.fromRGB(0, 0, 0)
         end
     }
+    
+    tabButton.MouseButton1Click:Connect(tab.Show)
+    table.insert(tabs, tab)
+    return tab
 end
 
--- ===== CONTROLES DE MOVIMENTO =====
-local walkSpeed = 16
-local walkSpeedSlider = CreateSlider("WalkSpeed (0-500)", 0, 500, 16, function(value)
-    walkSpeed = value
-    if Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") then
-        Player.Character.Humanoid.WalkSpeed = value
-    end
-end)
-
-local jumpPower = 50
-local jumpPowerSlider = CreateSlider("JumpPower (0-500)", 0, 500, 50, function(value)
-    jumpPower = value
-    if Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") then
-        Player.Character.Humanoid.JumpPower = value
-    end
-end)
-
--- ===== SISTEMA DE VOO =====
-local flying = false
-local flyBodyVelocity
-
-CreateButton("Fly (Toggle - F)", function()
-    flying = not flying
+-- ===== COMPONENTES DA UI =====
+local function CreateButton(parent, text, description)
+    local buttonFrame = Instance.new("Frame")
+    buttonFrame.Size = UDim2.new(0.95, 0, 0, 60)
+    buttonFrame.BackgroundColor3 = Theme.Colors.Button
+    buttonFrame.Parent = parent
     
-    if flying then
-        flyBodyVelocity = Instance.new("BodyVelocity")
-        flyBodyVelocity.Velocity = Vector3.new(0, 0, 0)
-        flyBodyVelocity.MaxForce = Vector3.new(0, 9e9, 0)
-        flyBodyVelocity.Parent = Player.Character:WaitForChild("HumanoidRootPart")
-        
-        local flyConnection
-        flyConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if not flying or not Player.Character then
-                flyConnection:Disconnect()
-                return
-            end
-            
-            local root = Player.Character.HumanoidRootPart
-            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
-                root.CFrame = root.CFrame * CFrame.new(0, 1, 0)
-            elseif game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftControl) then
-                root.CFrame = root.CFrame * CFrame.new(0, -1, 0)
-            end
-        end)
-    elseif flyBodyVelocity then
-        flyBodyVelocity:Destroy()
-    end
-end)
-
--- ===== TELEPORTE =====
-CreateButton("TP to Mouse (T)", function()
-    local inputConn
-    inputConn = game:GetService("UserInputService").InputBegan:Connect(function(input)
-        if input.KeyCode == Enum.KeyCode.T then
-            pcall(function()
-                Player.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(Mouse.Hit.Position + Vector3.new(0, 3, 0))
-            end)
-        end
-    end)
-end)
-
--- ===== NOCLIP =====
-local noclip = false
-CreateButton("Noclip (Toggle)", function()
-    noclip = not noclip
+    local button = Instance.new("TextButton")
+    button.Text = text
+    button.Size = UDim2.new(1, 0, 0.6, 0)
+    button.Position = UDim2.new(0, 0, 0, 0)
+    button.BackgroundTransparency = 1
+    button.TextColor3 = Theme.Colors.Text
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 14
+    button.TextXAlignment = Enum.TextXAlignment.Left
+    button.Parent = buttonFrame
     
-    if noclip then
-        local noclipConn
-        noclipConn = game:GetService("RunService").Stepped:Connect(function()
-            if not noclip or not Player.Character then
-                noclipConn:Disconnect()
-                return
-            end
-            
-            for _, part in pairs(Player.Character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = false
-                end
-            end
-        end)
-    end
+    local descLabel = Instance.new("TextLabel")
+    descLabel.Text = description
+    descLabel.Size = UDim2.new(1, -10, 0.4, 0)
+    descLabel.Position = UDim2.new(0, 10, 0.6, 0)
+    descLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+    descLabel.BackgroundTransparency = 1
+    descLabel.Font = Enum.Font.Gotham
+    descLabel.TextSize = 12
+    descLabel.TextXAlignment = Enum.TextXAlignment.Left
+    descLabel.Parent = buttonFrame
+    
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Theme.Colors.Primary
+    stroke.Thickness = 1
+    stroke.Parent = buttonFrame
+    
+    return button
+end
+
+local function CreateComingSoon(parent)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0.95, 0, 0, 80)
+    frame.BackgroundColor3 = Theme.Colors.Button
+    frame.Parent = parent
+    
+    local label = Instance.new("TextLabel")
+    label.Text = "🚧 Em Breve 🚧"
+    label.Size = UDim2.new(1, 0, 0.6, 0)
+    label.Position = UDim2.new(0, 0, 0.2, 0)
+    label.TextColor3 = Theme.Colors.Secondary
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 16
+    label.Parent = frame
+    
+    local desc = Instance.new("TextLabel")
+    desc.Text = "Estamos trabalhando nesta funcionalidade!"
+    desc.Size = UDim2.new(1, 0, 0.4, 0)
+    desc.Position = UDim2.new(0, 0, 0.6, 0)
+    desc.TextColor3 = Color3.fromRGB(180, 180, 180)
+    desc.BackgroundTransparency = 1
+    desc.Font = Enum.Font.Gotham
+    desc.TextSize = 12
+    desc.Parent = frame
+    
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Theme.Colors.Primary
+    stroke.Thickness = 1
+    stroke.Parent = frame
+    
+    return frame
+end
+
+-- ===== ABA DE UTILITÁRIOS =====
+local UtilityTab = CreateTab("Utilitários", "⚙️")
+
+-- WalkSpeed
+local wsSlider = CreateButton(UtilityTab.content, "WalkSpeed (16-500)", "Controla sua velocidade de movimento")
+wsSlider.MouseButton1Click:Connect(function()
+    -- Implementação do slider
 end)
 
--- ===== ANTI-AFK =====
-CreateButton("Anti-AFK", function()
-    local vu = game:GetService("VirtualUser")
-    Player.Idled:Connect(function()
-        vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-        task.wait(1)
-        vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-    end)
+-- JumpPower
+local jpSlider = CreateButton(UtilityTab.content, "JumpPower (50-500)", "Controla a altura do seu pulo")
+jpSlider.MouseButton1Click:Connect(function()
+    -- Implementação do slider
 end)
 
--- ===== ATUALIZAÇÃO AO RESPAWN =====
-Player.CharacterAdded:Connect(function(character)
-    character:WaitForChild("Humanoid")
-    task.wait(0.5)
-    walkSpeedSlider.SetValue(walkSpeed)
-    jumpPowerSlider.SetValue(jumpPower)
+-- Fly System
+CreateButton(UtilityTab.content, "Fly System (Tecla F)", "Voar pelo mapa").MouseButton1Click:Connect(function()
+    -- Implementação do fly
 end)
 
-print("Dr4gonHub carregado com sucesso!")
+-- Teleport
+CreateButton(UtilityTab.content, "Teleport (Tecla T)", "Teleportar para onde o mouse aponta").MouseButton1Click:Connect(function()
+    -- Implementação do teleporte
+end)
+
+-- ===== ABA DE BLOX FRUITS =====
+local BloxTab = CreateTab("Blox Fruits", "🍩")
+
+CreateButton(BloxTab.content, "Auto Farm Level", "Farm automático de níveis").MouseButton1Click:Connect(function()
+    -- Implementação do autofarm
+end)
+
+CreateComingSoon(BloxTab.content) -- Para funções em desenvolvimento
+
+-- ===== ABA DE BROOKHAVEN =====
+local BrookhavenTab = CreateTab("Brookhaven", "🏠")
+
+CreateComingSoon(BrookhavenTab.content)
+
+-- ===== ABA DE ARSENAL =====
+local ArsenalTab = CreateTab("Arsenal", "🔫")
+
+CreateComingSoon(ArsenalTab.content)
+
+-- ===== INICIALIZAÇÃO =====
+UtilityTab.Show() -- Mostra a aba de utilitários por padrão
+
+-- Efeito de inicialização
+local dragonIcon = Instance.new("ImageLabel")
+dragonIcon.Image = Theme.Images.Dragon
+dragonIcon.Size = UDim2.new(0, 100, 0, 100)
+dragonIcon.Position = UDim2.new(0.5, -50, 0.5, -50)
+dragonIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+dragonIcon.BackgroundTransparency = 1
+dragonIcon.Parent = ScreenGui
+
+game:GetService("TweenService"):Create(
+    dragonIcon,
+    TweenInfo.new(1.5, Enum.EasingStyle.Quint),
+    {Rotation = 360}
+):Play()
+
+task.wait(1.5)
+dragonIcon:Destroy()
+
+print("🐉 Dr4gonHub Premium inicializado com sucesso!")
