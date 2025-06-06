@@ -1,44 +1,59 @@
-local player = game.Players.LocalPlayer
-
+-- Carrega a biblioteca Orion
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()
 
+-- Garante acesso ao player
+local player = game.Players.LocalPlayer
+
+-- Cria a janela principal
 local Window = OrionLib:MakeWindow({
     Name = "Dr4gonHub",
     HidePremium = false,
     SaveConfig = true,
-    ConfigFolder = "OrionTest"
+    ConfigFolder = "OrionTest",
+    IntroEnabled = true,
+    IntroText = "Dr4gonHub",
+    IntroIcon = "rbxassetid://4483345998",
+    Icon = "rbxassetid://4483345998"
 })
 
+-- Aba Misc
 local Tab = Window:MakeTab({
     Name = "Misc",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
-local Section = Tab:AddSection({ Name = "Section" })
+Tab:AddSection({ Name = "Funções Diversas" })
 
+-- Notificação inicial
 OrionLib:MakeNotification({
     Name = "Inicializando...",
-    Content = "Bem vindo ao Dr4gonHub!!!",
+    Content = "Bem-vindo ao Dr4gonHub!",
     Image = "rbxassetid://4483345998",
     Time = 5
 })
 
 -- Botão de velocidade
 Tab:AddButton({
-    Name = "Speed",
+    Name = "Speed (150)",
     Callback = function()
-        local character = player.Character or player.CharacterAdded:Wait()
-        character:WaitForChild("Humanoid").WalkSpeed = 500
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.WalkSpeed = 150
+        end
     end
 })
 
 -- Botão de pulo
 Tab:AddButton({
-    Name = "Jump",
+    Name = "JumpPower (100)",
     Callback = function()
-        local character = player.Character or player.CharacterAdded:Wait()
-        character:WaitForChild("Humanoid").JumpPower = 50
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.JumpPower = 100
+        end
     end
 })
 
@@ -47,89 +62,104 @@ Tab:AddButton({
     Name = "Ajustar Iluminação",
     Callback = function()
         local Lighting = game:GetService("Lighting")
-        Lighting.Brightness = 1.5
+        Lighting.Brightness = 2
         Lighting.OutdoorAmbient = Color3.new(0.2, 0.2, 0.2)
         Lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
     end
 })
 
--- Função FX3
-local function giveFX3ToPlayer(player)
-    local playerData = Instance.new("BoolValue")
-    playerData.Name = "HasFX3"
-    playerData.Parent = player
-
-    local tool = Instance.new("Tool")
-    tool.Name = "FX3 Tool"
-    tool.RequiresHandle = false
-    tool.Parent = player.Backpack
-
-    local toolScript = Instance.new("LocalScript")
-    toolScript.Source = [[
-        local tool = script.Parent
-        local player = game.Players.LocalPlayer
-
-        tool.Activated:Connect(function()
-            print("FX3 ativada!")
-            -- Coloque aqui o efeito da habilidade
-        end)
-    ]]
-    toolScript.Parent = tool
-end
-
--- Botão FX3
+-- FX3 simulado
 Tab:AddButton({
-    Name = "FX3",
+    Name = "FX3 (Simulado)",
     Callback = function()
-        giveFX3ToPlayer(player)
+        OrionLib:MakeNotification({
+            Name = "FX3",
+            Content = "Habilidade FX3 ativada!",
+            Time = 3
+        })
+        print("FX3 ativada!")
     end
 })
 
--- Função de teleporte
-local function teleportPlayer(player, position)
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    if humanoidRootPart then
-        humanoidRootPart.CFrame = CFrame.new(position)
-    else
-        warn("HumanoidRootPart não encontrado")
-    end
-end
-
-local destinationPosition = Vector3.new(0, 50, 0)
-
--- Botão de teleporte
+-- Teleporte
 Tab:AddButton({
     Name = "Teletransportar",
     Callback = function()
-        teleportPlayer(player, destinationPosition)
+        local char = player.Character or player.CharacterAdded:Wait()
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if root then
+            root.CFrame = CFrame.new(Vector3.new(0, 50, 0))
+        end
     end
 })
 
--- Tab do jogo Grow a Garden
-local Tab2 = Window:MakeTab({
+-- Anti AFK
+Tab:AddButton({
+    Name = "Ativar Anti AFK",
+    Callback = function()
+        local VirtualUser = game:service("VirtualUser")
+        game:service("Players").LocalPlayer.Idled:connect(function()
+            VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            wait(1)
+            VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        end)
+
+        OrionLib:MakeNotification({
+            Name = "Anti AFK",
+            Content = "Anti AFK ativado com sucesso!",
+            Time = 5
+        })
+    end
+})
+
+-- Resetar Status
+Tab:AddButton({
+    Name = "Resetar Status",
+    Callback = function()
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.WalkSpeed = 16
+            hum.JumpPower = 50
+        end
+        OrionLib:MakeNotification({
+            Name = "Status Resetado",
+            Content = "Velocidade e Pulo voltaram ao normal!",
+            Time = 4
+        })
+    end
+})
+
+-- Fechar o hub
+Tab:AddButton({
+    Name = "Fechar Hub",
+    Callback = function()
+        OrionLib:Destroy()
+    end
+})
+
+-- Segunda aba: Grow a Garden
+local GardenTab = Window:MakeTab({
     Name = "Grow a garden",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
-Tab2:AddSection({ Name = "Section" })
+GardenTab:AddSection({ Name = "Scripts Externos" })
 
--- Botão Speed X hub
-Tab2:AddButton({
+GardenTab:AddButton({
     Name = "Speed X hub",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua"))()
     end
 })
 
--- Botão Seed Spawner
-Tab2:AddButton({
+GardenTab:AddButton({
     Name = "Seed Spawner",
     Callback = function()
         loadstring(game:HttpGet("https://codeberg.org/twentys2/Scripts/raw/branch/main/Grow-A-Garden"))()
     end
 })
 
--- Inicializar a UI
+-- Inicia o Hub
 OrionLib:Init()
