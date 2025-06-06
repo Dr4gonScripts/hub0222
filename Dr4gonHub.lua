@@ -1,7 +1,7 @@
 --[[
-  🐉 Dr4gonHub Premium - Versão Retangular Aprimorada
-  Recursos: Hitbox Expander com transparência ajustável, Aimbot, Controles de Janela
-  Formato: Retangular | Estável | Xeno Executor
+  🐉 Dr4gonHub Premium - Versão Aprimorada
+  Recursos: Hitbox Expander, Aimbot, Fly, Teleport, Noclip
+  Controles: Toggles visuais, teclas configuráveis
 ]]
 
 local Player = game:GetService("Players").LocalPlayer
@@ -62,7 +62,7 @@ ContentFrame.Size = UDim2.new(1, 0, 1, -35)
 ContentFrame.Position = UDim2.new(0, 0, 0, 35)
 ContentFrame.BackgroundTransparency = 1
 ContentFrame.ScrollBarThickness = 5
-ContentFrame.CanvasSize = UDim2.new(0, 0, 0, 650) -- Ajustado para mais conteúdo
+ContentFrame.CanvasSize = UDim2.new(0, 0, 0, 800)
 ContentFrame.Parent = MainFrame
 
 local UIListLayout = Instance.new("UIListLayout")
@@ -70,22 +70,36 @@ UIListLayout.Padding = UDim.new(0, 5)
 UIListLayout.Parent = ContentFrame
 
 -- ===== FUNÇÕES DE CONTROLE =====
-local function CreateButton(name, callback)
+local function CreateToggleButton(name, defaultState, callback)
     local button = Instance.new("TextButton")
-    button.Text = name
+    button.Text = name .. (defaultState and " [ON]" or " [OFF]")
     button.Size = UDim2.new(0.9, 0, 0, 40)
     button.Position = UDim2.new(0.05, 0, 0, 0)
-    button.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+    button.BackgroundColor3 = defaultState and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(150, 50, 50)
     button.TextColor3 = Color3.new(1, 1, 1)
     button.Font = Enum.Font.Gotham
     button.TextSize = 14
     button.Parent = ContentFrame
     
+    local state = defaultState
+    
     button.MouseButton1Click:Connect(function()
-        pcall(callback)
+        state = not state
+        button.Text = name .. (state and " [ON]" or " [OFF]")
+        button.BackgroundColor3 = state and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(150, 50, 50)
+        pcall(callback, state)
     end)
     
-    return button
+    return {
+        SetState = function(newState)
+            state = newState
+            button.Text = name .. (state and " [ON]" or " [OFF]")
+            button.BackgroundColor3 = state and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(150, 50, 50)
+        end,
+        GetState = function()
+            return state
+        end
+    }
 end
 
 local function CreateSlider(name, min, max, default, callback)
@@ -152,9 +166,8 @@ MinimizeButton.MouseButton1Click:Connect(function()
 end)
 
 -- ===== HITBOX EXPANDER =====
-local hitboxEnabled = false
 local hitboxSize = 2
-local hitboxTransparency = 0.5 -- Novo: Controle de transparência
+local hitboxTransparency = 0.5
 local hitboxParts = {}
 
 local hitboxSlider = CreateSlider("Hitbox Size (1-5)", 1, 5, 2, function(value)
@@ -162,9 +175,12 @@ local hitboxSlider = CreateSlider("Hitbox Size (1-5)", 1, 5, 2, function(value)
     UpdateHitboxes()
 end)
 
--- Novo: Slider para transparência da hitbox
 local transparencySlider = CreateSlider("Hitbox Transparency (0-1)", 0, 1, 0.5, function(value)
     hitboxTransparency = value
+    UpdateHitboxes()
+end)
+
+local hitboxToggle = CreateToggleButton("Hitbox", false, function(state)
     UpdateHitboxes()
 end)
 
@@ -177,7 +193,7 @@ local function UpdateHitboxes()
     end
     hitboxParts = {}
 
-    if not hitboxEnabled then return end
+    if not hitboxToggle.GetState() then return end
 
     -- Criar novas hitboxes
     for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
@@ -186,7 +202,7 @@ local function UpdateHitboxes()
                 if part:IsA("BasePart") then
                     local hitbox = Instance.new("BoxHandleAdornment")
                     hitbox.Size = part.Size * hitboxSize
-                    hitbox.Transparency = hitboxTransparency -- Usando a variável de transparência
+                    hitbox.Transparency = hitboxTransparency
                     hitbox.Color3 = Color3.fromRGB(255, 0, 0)
                     hitbox.Adornee = part
                     hitbox.AlwaysOnTop = true
@@ -199,13 +215,7 @@ local function UpdateHitboxes()
     end
 end
 
-CreateButton("Toggle Hitbox", function()
-    hitboxEnabled = not hitboxEnabled
-    UpdateHitboxes()
-end)
-
 -- ===== AIMBOT =====
-local aimbotEnabled = false
 local aimbotFOV = 100
 local aimbotTeamCheck = true
 
@@ -213,27 +223,24 @@ local aimbotFOVSlider = CreateSlider("Aimbot FOV (10-200)", 10, 200, 100, functi
     aimbotFOV = value
 end)
 
-CreateButton("Toggle Aimbot", function()
-    aimbotEnabled = not aimbotEnabled
+local aimbotToggle = CreateToggleButton("Aimbot", false, function(state)
+    -- O estado é armazenado automaticamente
 end)
 
-CreateButton("Toggle Team Check", function()
-    aimbotTeamCheck = not aimbotTeamCheck
+local teamCheckToggle = CreateToggleButton("Team Check", true, function(state)
+    aimbotTeamCheck = state
 end)
 
 -- Função principal do aimbot
 game:GetService("RunService").RenderStepped:Connect(function()
-    if aimbotEnabled and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+    if aimbotToggle.GetState() and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
         local closestPlayer = nil
         local closestDistance = aimbotFOV
         
         for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
             if player ~= Player and player.Character then
-                -- Verificação de time
-                if aimbotTeamCheck then
-                    if Player.Team and player.Team and Player.Team == player.Team then
-                        continue
-                    end
+                if aimbotTeamCheck and Player.Team and player.Team and Player.Team == player.Team then
+                    continue
                 end
                 
                 local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
@@ -282,18 +289,17 @@ local jumpPowerSlider = CreateSlider("JumpPower (0-500)", 0, 500, 50, function(v
 end)
 
 -- Fly
-local flying = false
 local flySpeed = 50
 local flySpeedSlider = CreateSlider("Fly Speed (1-100)", 1, 100, 50, function(value)
     flySpeed = value
 end)
 
-CreateButton("Fly (Toggle - F)", function()
-    flying = not flying
-    local torso = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
-    if not torso then return end
-    
-    if flying then
+local flyToggle = CreateToggleButton("Fly (F)", false, function(state)
+    if state then
+        -- Ativar fly
+        local torso = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+        if not torso then return end
+        
         local bodyGyro = Instance.new("BodyGyro")
         bodyGyro.P = 9e4
         bodyGyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
@@ -305,69 +311,95 @@ CreateButton("Fly (Toggle - F)", function()
         bodyVelocity.maxForce = Vector3.new(9e9, 9e9, 9e9)
         bodyVelocity.Parent = torso
         
-        local function fly()
-            if not flying or not Player.Character then return end
+        local flyConnection
+        flyConnection = game:GetService("RunService").Heartbeat:Connect(function()
+            if not flyToggle.GetState() or not Player.Character then
+                flyConnection:Disconnect()
+                return
+            end
+            
+            local torso = Player.Character:FindFirstChild("HumanoidRootPart")
+            if not torso then return end
             
             local c = workspace.CurrentCamera.CFrame
             local v = Vector3.new()
             
-            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
-                v = v + c.LookVector * flySpeed
-            end
-            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.S) then
-                v = v - c.LookVector * flySpeed
-            end
-            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.A) then
-                v = v - c.RightVector * flySpeed
-            end
-            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.D) then
-                v = v + c.RightVector * flySpeed
-            end
-            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
-                v = v + Vector3.new(0, flySpeed, 0)
-            end
-            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftShift) then
-                v = v - Vector3.new(0, flySpeed, 0)
+            local controls = {
+                [Enum.KeyCode.W] = c.LookVector,
+                [Enum.KeyCode.S] = -c.LookVector,
+                [Enum.KeyCode.A] = -c.RightVector,
+                [Enum.KeyCode.D] = c.RightVector,
+                [Enum.KeyCode.Space] = Vector3.new(0, 1, 0),
+                [Enum.KeyCode.LeftShift] = Vector3.new(0, -1, 0)
+            }
+            
+            for key, direction in pairs(controls) do
+                if game:GetService("UserInputService"):IsKeyDown(key) then
+                    v = v + direction * flySpeed
+                end
             end
             
             torso.Velocity = v
-            bodyGyro.cframe = workspace.CurrentCamera.CFrame
-        end
-        
-        game:GetService("RunService").Heartbeat:Connect(fly)
+            if bodyGyro then
+                bodyGyro.cframe = workspace.CurrentCamera.CFrame
+            end
+        end)
     else
-        for _, v in pairs(torso:GetChildren()) do
-            if v:IsA("BodyVelocity") or v:IsA("BodyGyro") then
-                v:Destroy()
+        -- Desativar fly
+        if Player.Character then
+            local torso = Player.Character:FindFirstChild("HumanoidRootPart")
+            if torso then
+                for _, v in pairs(torso:GetChildren()) do
+                    if v:IsA("BodyVelocity") or v:IsA("BodyGyro") then
+                        v:Destroy()
+                    end
+                end
             end
         end
     end
 end)
 
 -- Teleport
-CreateButton("TP to Mouse (T)", function()
-    if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-        Player.Character.HumanoidRootPart.CFrame = CFrame.new(Mouse.Hit.Position + Vector3.new(0, 3, 0))
+local teleportToggle = CreateToggleButton("Teleport (T/Click)", false, function(state)
+    -- O estado é armazenado automaticamente
+end)
+
+local teleportConnection
+teleportConnection = game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    
+    if teleportToggle.GetState() and (input.KeyCode == Enum.KeyCode.T or input.UserInputType == Enum.UserInputType.MouseButton1) then
+        if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+            local targetPos
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                -- Teleportar para onde o mouse clicou
+                local ray = workspace:ScreenPointToRay(Mouse.X, Mouse.Y)
+                local part, position = workspace:FindPartOnRay(ray, Player.Character)
+                targetPos = position
+            else
+                -- Teleportar para onde o mouse está apontando
+                targetPos = Mouse.Hit.Position
+            end
+            
+            Player.Character.HumanoidRootPart.CFrame = CFrame.new(targetPos + Vector3.new(0, 3, 0))
+        end
     end
 end)
 
 -- Noclip
-local noclip = false
-CreateButton("Noclip (Toggle)", function()
-    noclip = not noclip
-    
+local noclipToggle = CreateToggleButton("Noclip", false, function(state)
     if Player.Character then
         for _, part in pairs(Player.Character:GetDescendants()) do
             if part:IsA("BasePart") then
-                part.CanCollide = not noclip
+                part.CanCollide = not state
             end
         end
     end
     
-    if noclip then
+    if state then
         local noclipConnection
         noclipConnection = game:GetService("RunService").Stepped:Connect(function()
-            if not noclip then
+            if not noclipToggle.GetState() then
                 noclipConnection:Disconnect()
                 return
             end
@@ -384,24 +416,33 @@ CreateButton("Noclip (Toggle)", function()
 end)
 
 -- Anti-AFK
-CreateButton("Anti-AFK", function()
-    local vu = game:GetService("VirtualUser")
-    Player.Idled:Connect(function()
-        vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-        task.wait(1)
-        vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-    end)
+local antiAfkToggle = CreateToggleButton("Anti-AFK", false, function(state)
+    if state then
+        local vu = game:GetService("VirtualUser")
+        Player.Idled:Connect(function()
+            vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+            task.wait(1)
+            vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        end)
+    end
 end)
 
 -- Atualizar ao respawn
 Player.CharacterAdded:Connect(function(character)
     character:WaitForChild("Humanoid")
     task.wait(0.5)
+    
+    -- Restaurar configurações
     walkSpeedSlider.SetValue(walkSpeed)
     jumpPowerSlider.SetValue(jumpPower)
     
-    -- Restaurar noclip se estiver ativado
-    if noclip then
+    -- Restaurar estados
+    if flyToggle.GetState() then
+        flyToggle.SetState(false)
+        flyToggle.SetState(true)
+    end
+    
+    if noclipToggle.GetState() then
         for _, part in pairs(character:GetDescendants()) do
             if part:IsA("BasePart") then
                 part.CanCollide = false
