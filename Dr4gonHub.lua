@@ -1,64 +1,68 @@
 -- Carrega a biblioteca Orion
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()
-
--- Garante acesso ao player
 local player = game.Players.LocalPlayer
 
--- Cria a janela principal
+-- Cria a janela
 local Window = OrionLib:MakeWindow({
     Name = "Dr4gonHub",
     HidePremium = false,
     SaveConfig = true,
-    ConfigFolder = "OrionTest",
+    ConfigFolder = "Dr4gonHubConfig",
     IntroEnabled = true,
     IntroText = "Dr4gonHub",
     IntroIcon = "rbxassetid://4483345998",
     Icon = "rbxassetid://4483345998"
 })
 
--- Aba Misc
-local Tab = Window:MakeTab({
+-- 🧩 Aba Misc
+local MiscTab = Window:MakeTab({
     Name = "Misc",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
-Tab:AddSection({ Name = "Funções Diversas" })
+-- Seção 1
+MiscTab:AddSection({ Name = "Movimentação" })
 
--- Notificação inicial
-OrionLib:MakeNotification({
-    Name = "Inicializando...",
-    Content = "Bem-vindo ao Dr4gonHub!",
-    Image = "rbxassetid://4483345998",
-    Time = 5
-})
-
--- Botão de velocidade
-Tab:AddButton({
+MiscTab:AddButton({
     Name = "Speed (150)",
     Callback = function()
         local char = player.Character or player.CharacterAdded:Wait()
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        if hum then
-            hum.WalkSpeed = 150
-        end
+        local hum = char:FindFirstChildWhichIsA("Humanoid")
+        if hum then hum.WalkSpeed = 150 end
     end
 })
 
--- Botão de pulo
-Tab:AddButton({
+MiscTab:AddButton({
     Name = "JumpPower (100)",
     Callback = function()
         local char = player.Character or player.CharacterAdded:Wait()
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        if hum then
-            hum.JumpPower = 100
-        end
+        local hum = char:FindFirstChildWhichIsA("Humanoid")
+        if hum then hum.JumpPower = 100 end
     end
 })
 
--- Ajuste de iluminação
-Tab:AddButton({
+MiscTab:AddButton({
+    Name = "Resetar Status",
+    Callback = function()
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hum = char:FindFirstChildWhichIsA("Humanoid")
+        if hum then
+            hum.WalkSpeed = 16
+            hum.JumpPower = 50
+        end
+        OrionLib:MakeNotification({
+            Name = "Status Resetado",
+            Content = "Voltou ao normal!",
+            Time = 4
+        })
+    end
+})
+
+-- Seção 2
+MiscTab:AddSection({ Name = "Utilitários" })
+
+MiscTab:AddButton({
     Name = "Ajustar Iluminação",
     Callback = function()
         local Lighting = game:GetService("Lighting")
@@ -68,22 +72,26 @@ Tab:AddButton({
     end
 })
 
--- FX3 simulado
-Tab:AddButton({
-    Name = "FX3 (Simulado)",
+MiscTab:AddButton({
+    Name = "Anti AFK",
     Callback = function()
+        local vu = game:service("VirtualUser")
+        player.Idled:Connect(function()
+            vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            wait(1)
+            vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        end)
+
         OrionLib:MakeNotification({
-            Name = "FX3",
-            Content = "Habilidade FX3 ativada!",
-            Time = 3
+            Name = "Anti AFK",
+            Content = "Anti AFK ativado!",
+            Time = 5
         })
-        print("FX3 ativada!")
     end
 })
 
--- Teleporte
-Tab:AddButton({
-    Name = "Teletransportar",
+MiscTab:AddButton({
+    Name = "Teletransportar para (0, 50, 0)",
     Callback = function()
         local char = player.Character or player.CharacterAdded:Wait()
         local root = char:FindFirstChild("HumanoidRootPart")
@@ -93,54 +101,31 @@ Tab:AddButton({
     end
 })
 
--- Anti AFK
-Tab:AddButton({
-    Name = "Ativar Anti AFK",
-    Callback = function()
-        local VirtualUser = game:service("VirtualUser")
-        game:service("Players").LocalPlayer.Idled:connect(function()
-            VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-            wait(1)
-            VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-        end)
-
-        OrionLib:MakeNotification({
-            Name = "Anti AFK",
-            Content = "Anti AFK ativado com sucesso!",
-            Time = 5
-        })
-    end
-})
-
--- Resetar Status
-Tab:AddButton({
-    Name = "Resetar Status",
-    Callback = function()
-        local char = player.Character or player.CharacterAdded:Wait()
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        if hum then
-            hum.WalkSpeed = 16
-            hum.JumpPower = 50
-        end
-        OrionLib:MakeNotification({
-            Name = "Status Resetado",
-            Content = "Velocidade e Pulo voltaram ao normal!",
-            Time = 4
-        })
-    end
-})
-
--- Fechar o hub
-Tab:AddButton({
+MiscTab:AddButton({
     Name = "Fechar Hub",
     Callback = function()
         OrionLib:Destroy()
     end
 })
 
--- Segunda aba: Grow a Garden
+-- Seção 3
+MiscTab:AddSection({ Name = "FX3 Simulada" })
+
+MiscTab:AddButton({
+    Name = "FX3",
+    Callback = function()
+        OrionLib:MakeNotification({
+            Name = "FX3",
+            Content = "FX3 ativada!",
+            Time = 3
+        })
+        print("FX3 ativada!")
+    end
+})
+
+-- 🌱 Aba Grow a Garden
 local GardenTab = Window:MakeTab({
-    Name = "Grow a garden",
+    Name = "🌱Grow a Garden",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
@@ -148,7 +133,7 @@ local GardenTab = Window:MakeTab({
 GardenTab:AddSection({ Name = "Scripts Externos" })
 
 GardenTab:AddButton({
-    Name = "Speed X hub",
+    Name = "Speed X Hub",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua"))()
     end
@@ -161,5 +146,13 @@ GardenTab:AddButton({
     end
 })
 
--- Inicia o Hub
+-- Inicia a interface
 OrionLib:Init()
+
+-- Notificação de entrada
+OrionLib:MakeNotification({
+    Name = "Bem-vindo!",
+    Content = "Dr4gonHub foi iniciado com sucesso!",
+    Image = "rbxassetid://4483345998",
+    Time = 5
+})
