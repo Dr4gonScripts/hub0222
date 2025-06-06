@@ -2,122 +2,102 @@ local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jens
 local Player = game.Players.LocalPlayer
 local Mouse = Player:GetMouse()
 
+-- Configuração da Janela Principal
 local Window = OrionLib:MakeWindow({
     Name = "Dr4gonHub",
     HidePremium = false,
-    SaveConfig = false,
-    ConfigFolder = "Dr4gonHub",
+    SaveConfig = true,
+    ConfigFolder = "Dr4gonHubConfig",
     IntroEnabled = true,
-    IntroText = "Bem-vindo ao Dr4gonHub!",
-    Icon = "" -- Vazio para evitar erro com JSON
+    IntroText = "Dr4gonHub Premium",
+    IntroIcon = "rbxassetid://0",
+    Icon = "rbxassetid://0"
 })
 
--- =============== MISC TAB ===============
-local MiscTab = Window:MakeTab({
-    Name = "Misc",
-    Icon = "",
+-- =============== UTILITÁRIOS ===============
+local UtilityTab = Window:MakeTab({
+    Name = "⚙️ Utilitários",
+    Icon = "rbxassetid://0",
     PremiumOnly = false
 })
 
-MiscTab:AddSection({Name = "Utilitários"})
+-- Controles de Movimento
+UtilityTab:AddSection({Name = "Controles de Movimento"})
 
--- Anti-AFK
-MiscTab:AddButton({
-    Name = "Anti-AFK",
-    Callback = function()
-        local vu = game:GetService("VirtualUser")
-        Player.Idled:Connect(function()
-            vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-            task.wait(1)
-            vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+local WS = UtilityTab:AddSlider({
+    Name = "Velocidade (WalkSpeed)",
+    Min = 16,
+    Max = 200,
+    Default = 16,
+    Color = Color3.fromRGB(255, 0, 0),
+    Increment = 1,
+    ValueName = "velocidade",
+    Callback = function(Value)
+        pcall(function()
+            Player.Character.Humanoid.WalkSpeed = Value
         end)
-    end
+    end    
 })
 
--- Reset stats
-MiscTab:AddButton({
-    Name = "Resetar WalkSpeed/JumpPower",
-    Callback = function()
-        local char = Player.Character or Player.CharacterAdded:Wait()
-        local hum = char:FindFirstChildWhichIsA("Humanoid")
-        if hum then
-            hum.WalkSpeed = 16
-            hum.JumpPower = 50
+local JP = UtilityTab:AddSlider({
+    Name = "Pulo (JumpPower)",
+    Min = 50,
+    Max = 200,
+    Default = 50,
+    Color = Color3.fromRGB(0, 255, 0),
+    Increment = 1,
+    ValueName = "força",
+    Callback = function(Value)
+        pcall(function()
+            Player.Character.Humanoid.JumpPower = Value
+        end)
+    end    
+})
+
+-- Sistema de Voo
+local flying = false
+local bp, bg
+UtilityTab:AddToggle({
+    Name = "Voo (Tecla F)",
+    Default = false,
+    Callback = function(Value)
+        flying = Value
+        if flying then
+            local char = Player.Character or Player.CharacterAdded:Wait()
+            local hrp = char:WaitForChild("HumanoidRootPart")
+            
+            bp = Instance.new("BodyPosition", hrp)
+            bp.D = 1000
+            bp.MaxForce = Vector3.new(100000, 100000, 100000)
+            bp.Position = hrp.Position
+
+            bg = Instance.new("BodyGyro", hrp)
+            bg.D = 1000
+            bg.MaxTorque = Vector3.new(100000, 100000, 100000)
+            bg.CFrame = hrp.CFrame
+            
+            local speed = 50
+            game:GetService("RunService").Heartbeat:Connect(function()
+                if not flying then return end
+                bp.Position = bp.Position + (workspace.CurrentCamera.CFrame.LookVector * speed * 0.1)
+                bg.CFrame = workspace.CurrentCamera.CFrame
+            end)
+        else
+            if bp then bp:Destroy() end
+            if bg then bg:Destroy() end
         end
     end
 })
 
-MiscTab:AddButton({
-    Name = "WalkSpeed 100",
+-- Anti-AFK
+UtilityTab:AddButton({
+    Name = "Ativar Anti-AFK",
     Callback = function()
-        local char = Player.Character or Player.CharacterAdded:Wait()
-        local hum = char:FindFirstChildWhichIsA("Humanoid")
-        if hum then hum.WalkSpeed = 100 end
-    end
-})
-
-MiscTab:AddButton({
-    Name = "JumpPower 100",
-    Callback = function()
-        local char = Player.Character or Player.CharacterAdded:Wait()
-        local hum = char:FindFirstChildWhichIsA("Humanoid")
-        if hum then hum.JumpPower = 100 end
-    end
-})
-
--- Fly
-local flying = false
-MiscTab:AddButton({
-    Name = "Ativar Fly (tecla F)",
-    Callback = function()
-        local UIS = game:GetService("UserInputService")
-        local bp, bg
-        local speed = 5
-
-        UIS.InputBegan:Connect(function(input, gpe)
-            if gpe then return end
-            if input.KeyCode == Enum.KeyCode.F then
-                flying = not flying
-                if flying then
-                    local char = Player.Character
-                    local hrp = char:WaitForChild("HumanoidRootPart")
-
-                    bp = Instance.new("BodyPosition", hrp)
-                    bp.D = 10
-                    bp.MaxForce = Vector3.new(400000, 400000, 400000)
-                    bp.Position = hrp.Position
-
-                    bg = Instance.new("BodyGyro", hrp)
-                    bg.D = 10
-                    bg.MaxTorque = Vector3.new(400000, 400000, 400000)
-                    bg.CFrame = hrp.CFrame
-
-                    while flying and task.wait() do
-                        bp.Position = hrp.Position + (workspace.CurrentCamera.CFrame.LookVector * speed)
-                        bg.CFrame = workspace.CurrentCamera.CFrame
-                    end
-                else
-                    if bp then bp:Destroy() end
-                    if bg then bg:Destroy() end
-                end
-            end
-        end)
-    end
-})
-
--- Teleport
-MiscTab:AddButton({
-    Name = "Ativar Teleporte por Clique (tecla T)",
-    Callback = function()
-        local UIS = game:GetService("UserInputService")
-        UIS.InputBegan:Connect(function(input, gpe)
-            if gpe then return end
-            if input.KeyCode == Enum.KeyCode.T then
-                local pos = Mouse.Hit.Position
-                local char = Player.Character or Player.CharacterAdded:Wait()
-                local root = char:WaitForChild("HumanoidRootPart")
-                root.CFrame = CFrame.new(pos + Vector3.new(0, 5, 0))
-            end
+        local vu = game:GetService("VirtualUser")
+        Player.Idled:Connect(function()
+            vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            wait(1)
+            vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
         end)
     end
 })
@@ -125,29 +105,108 @@ MiscTab:AddButton({
 -- =============== BLOX FRUITS ===============
 local BloxTab = Window:MakeTab({
     Name = "🍩 Blox Fruits",
-    Icon = "",
+    Icon = "rbxassetid://0",
     PremiumOnly = false
 })
 
-BloxTab:AddButton({
-    Name = "Speed X Hub",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua"))()
+-- Auto Farm
+BloxTab:AddSection({Name = "Auto Farm"})
+BloxTab:AddToggle({
+    Name = "Auto Farm Nível",
+    Default = false,
+    Callback = function(Value)
+        getgenv().autofarm = Value
+        while autofarm do
+            -- Implementação do auto farm
+            wait(0.1)
+        end
     end
 })
 
--- =============== GARDEN TAB ===============
-local GardenTab = Window:MakeTab({
-    Name = "🌱 Grow a Garden",
-    Icon = "",
+-- Teleportes
+BloxTab:AddSection({Name = "Teleportes"})
+BloxTab:AddDropdown({
+    Name = "Ilhas",
+    Options = {"Primeira", "Segunda", "Terceira"},
+    Default = "Primeira",
+    Callback = function(Value)
+        -- Implementação de teleporte
+    end    
+})
+
+-- =============== BROOKHAVEN ===============
+local BrookhavenTab = Window:MakeTab({
+    Name = "🏠 Brookhaven",
+    Icon = "rbxassetid://0",
     PremiumOnly = false
 })
 
-GardenTab:AddButton({
-    Name = "No Lag Hub",
+-- Dinheiro
+BrookhavenTab:AddSection({Name = "Dinheiro"})
+BrookhavenTab:AddButton({
+    Name = "Obter $1,000,000",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Loader/LoaderV1.lua"))()
+        -- Implementação de money hack
     end
 })
 
+-- =============== DOORS ===============
+local DoorsTab = Window:MakeTab({
+    Name = "🚪 Doors",
+    Icon = "rbxassetid://0",
+    PremiumOnly = false
+})
+
+-- Helpers
+DoorsTab:AddSection({Name = "Helpers"})
+DoorsTab:AddToggle({
+    Name = "God Mode",
+    Default = false,
+    Callback = function(Value)
+        -- Implementação de god mode
+    end
+})
+
+-- =============== ARSENAL ===============
+local ArsenalTab = Window:MakeTab({
+    Name = "🔫 Arsenal",
+    Icon = "rbxassetid://0",
+    PremiumOnly = false
+})
+
+-- Aimbot
+ArsenalTab:AddSection({Name = "Aimbot"})
+ArsenalTab:AddToggle({
+    Name = "Silent Aim",
+    Default = false,
+    Callback = function(Value)
+        -- Implementação de silent aim
+    end
+})
+
+-- =============== ADOPT ME ===============
+local AdoptMeTab = Window:MakeTab({
+    Name = "🐶 Adopt Me",
+    Icon = "rbxassetid://0",
+    PremiumOnly = false
+})
+
+-- Auto Farms
+AdoptMeTab:AddSection({Name = "Auto Farms"})
+AdoptMeTab:AddToggle({
+    Name = "Auto Coletar Dinheiro",
+    Default = false,
+    Callback = function(Value)
+        -- Implementação de auto money
+    end
+})
+
+-- Inicializar UI
 OrionLib:Init()
+
+-- Atualizar WalkSpeed/JumpPower quando o personagem spawnar
+Player.CharacterAdded:Connect(function(char)
+    char:WaitForChild("Humanoid")
+    WS:Set(Player.Character.Humanoid.WalkSpeed)
+    JP:Set(Player.Character.Humanoid.JumpPower)
+end)
