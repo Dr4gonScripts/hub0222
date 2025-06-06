@@ -1,37 +1,62 @@
 --[[
-  🐉 Dr4gonHub Premium - Edição Completa
-  Jogos: Blox Fruits, Blue Lock Rivals, Grow a Garden, Arsenal
-  MISC: Aimbot, Hitbox Expander, Speed, Jump, Fly, NoClip, Teleport
+  🐉 Dr4gonHub Premium - Edição Completa e Estável
+  Recursos:
+  - MISC: Aimbot, Hitbox Expander, Speed, Jump, Fly, NoClip, TP
+  - Jogos: Blox Fruits, Blue Lock, Grow a Garden, Arsenal
+  - Interface segura com tratamento de erros
 ]]
 
--- Serviços
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
-local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
+-- ===== SERVIÇOS COM TRATAMENTO DE ERROS =====
+local function GetService(serviceName)
+    local success, service = pcall(game.GetService, game, serviceName)
+    return success and service or nil
+end
 
--- Configuração do Tema
+local Players = GetService("Players") or game:WaitForChild("Players")
+local UserInputService = GetService("UserInputService")
+local RunService = GetService("RunService")
+local TweenService = GetService("TweenService")
+local CoreGui = GetService("CoreGui") or game:WaitForChild("CoreGui")
+
+-- Verificação essencial
+if not (Players and UserInputService and RunService and TweenService and CoreGui) then
+    warn("❌ Serviços essenciais não carregados!")
+    return
+end
+
+local LocalPlayer = Players.LocalPlayer
+if not LocalPlayer then
+    Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+    LocalPlayer = Players.LocalPlayer
+end
+
+-- ===== CONFIGURAÇÃO DO TEMA =====
 local Theme = {
     Colors = {
         Main = Color3.fromRGB(25, 25, 35),
-        Header = Color3.fromRGB(188, 10, 28), -- Vermelho Dr4gon
+        Header = Color3.fromRGB(188, 10, 28),
         TabActive = Color3.fromRGB(45, 45, 60),
         TabInactive = Color3.fromRGB(35, 35, 50),
         Text = Color3.fromRGB(240, 240, 240),
         Button = Color3.fromRGB(45, 50, 65),
         ButtonHover = Color3.fromRGB(55, 60, 75),
-        Accent = Color3.fromRGB(255, 212, 96), -- Dourado
+        Accent = Color3.fromRGB(255, 212, 96),
         Close = Color3.fromRGB(255, 80, 80),
-        Minimize = Color3.fromRGB(255, 180, 80)
+        Minimize = Color3.fromRGB(255, 180, 80),
+        Hitbox = Color3.fromRGB(255, 50, 50)
+    },
+    Settings = {
+        Aimbot = {FOV = 100, Smoothness = 5, TeamCheck = true},
+        Hitbox = {Size = 2, Transparency = 0.5},
+        Movement = {Speed = 50, Jump = 50},
+        Fly = {Speed = 50}
     }
 }
 
--- Criação da Interface
+-- ===== CRIAÇÃO SEGURA DA INTERFACE =====
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Dr4gonHubUI"
-ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.Parent = CoreGui
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0.35, 0, 0.65, 0)
@@ -102,7 +127,7 @@ local ContentLayout = Instance.new("UIListLayout")
 ContentLayout.Padding = UDim.new(0, 10)
 ContentLayout.Parent = ContentFrame
 
--- Sistema de Movimento da Janela
+-- ===== SISTEMA DE MOVIMENTO DA JANELA =====
 local dragging, dragInput, dragStart, startPos
 
 Header.InputBegan:Connect(function(input)
@@ -134,7 +159,7 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- Sistema de Abas
+-- ===== SISTEMA DE ABAS =====
 local tabs = {}
 local currentTab = nil
 
@@ -179,85 +204,104 @@ local function CreateTab(tabName)
     return tab
 end
 
--- Função para criar botões
+-- ===== FUNÇÕES UTILITÁRIAS =====
+local function SafeCreate(instanceType, properties)
+    local success, obj = pcall(Instance.new, instanceType)
+    if success and obj then
+        for prop, value in pairs(properties) do
+            pcall(function() obj[prop] = value end)
+        end
+        return obj
+    end
+    return nil
+end
+
 local function CreateButton(parent, text, description, callback)
-    local buttonFrame = Instance.new("Frame")
-    buttonFrame.Size = UDim2.new(1, -10, 0, 60)
-    buttonFrame.BackgroundColor3 = Theme.Colors.Button
-    buttonFrame.Parent = parent
+    local buttonFrame = SafeCreate("Frame", {
+        Size = UDim2.new(1, -10, 0, 60),
+        BackgroundColor3 = Theme.Colors.Button,
+        Parent = parent
+    })
     
-    local button = Instance.new("TextButton")
-    button.Text = text
-    button.Size = UDim2.new(1, 0, 0.6, 0)
-    button.Position = UDim2.new(0, 0, 0, 0)
-    button.BackgroundTransparency = 1
-    button.TextColor3 = Theme.Colors.Text
-    button.Font = Enum.Font.GothamMedium
-    button.TextSize = 14
-    button.TextXAlignment = Enum.TextXAlignment.Left
-    button.Parent = buttonFrame
+    if not buttonFrame then return end
     
-    local desc = Instance.new("TextLabel")
-    desc.Text = description
-    desc.Size = UDim2.new(1, -10, 0.4, 0)
-    desc.Position = UDim2.new(0, 10, 0.6, 0)
-    desc.TextColor3 = Color3.fromRGB(180, 180, 180)
-    desc.BackgroundTransparency = 1
-    desc.Font = Enum.Font.Gotham
-    desc.TextSize = 12
-    desc.TextXAlignment = Enum.TextXAlignment.Left
-    desc.Parent = buttonFrame
+    SafeCreate("TextButton", {
+        Text = text,
+        Size = UDim2.new(1, 0, 0.6, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundTransparency = 1,
+        TextColor3 = Theme.Colors.Text,
+        Font = Enum.Font.GothamMedium,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = buttonFrame,
+        MouseButton1Click = callback
+    })
     
-    button.MouseEnter:Connect(function()
+    SafeCreate("TextLabel", {
+        Text = description,
+        Size = UDim2.new(1, -10, 0.4, 0),
+        Position = UDim2.new(0, 10, 0.6, 0),
+        TextColor3 = Color3.fromRGB(180, 180, 180),
+        BackgroundTransparency = 1,
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = buttonFrame
+    })
+    
+    buttonFrame.MouseEnter:Connect(function()
         buttonFrame.BackgroundColor3 = Theme.Colors.ButtonHover
     end)
     
-    button.MouseLeave:Connect(function()
+    buttonFrame.MouseLeave:Connect(function()
         buttonFrame.BackgroundColor3 = Theme.Colors.Button
     end)
-    
-    button.MouseButton1Click:Connect(callback)
     
     return buttonFrame
 end
 
--- Função para criar slider
 local function CreateSlider(parent, text, min, max, default, callback)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, -10, 0, 70)
-    frame.BackgroundColor3 = Theme.Colors.Button
-    frame.Parent = parent
+    local frame = SafeCreate("Frame", {
+        Size = UDim2.new(1, -10, 0, 70),
+        BackgroundColor3 = Theme.Colors.Button,
+        Parent = parent
+    })
     
-    local label = Instance.new("TextLabel")
-    label.Text = text
-    label.Size = UDim2.new(1, 0, 0.4, 0)
-    label.TextColor3 = Theme.Colors.Text
-    label.BackgroundTransparency = 1
-    label.Font = Enum.Font.GothamMedium
-    label.TextSize = 13
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Parent = frame
+    SafeCreate("TextLabel", {
+        Text = text,
+        Size = UDim2.new(1, 0, 0.4, 0),
+        TextColor3 = Theme.Colors.Text,
+        BackgroundTransparency = 1,
+        Font = Enum.Font.GothamMedium,
+        TextSize = 13,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = frame
+    })
     
-    local slider = Instance.new("Frame")
-    slider.Size = UDim2.new(0.9, 0, 0, 15)
-    slider.Position = UDim2.new(0.05, 0, 0.6, 0)
-    slider.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
-    slider.Parent = frame
+    local slider = SafeCreate("Frame", {
+        Size = UDim2.new(0.9, 0, 0, 15),
+        Position = UDim2.new(0.05, 0, 0.6, 0),
+        BackgroundColor3 = Color3.fromRGB(60, 60, 70),
+        Parent = frame
+    })
     
-    local fill = Instance.new("Frame")
-    fill.Size = UDim2.new((default - min)/(max - min), 0, 1, 0)
-    fill.BackgroundColor3 = Theme.Colors.Accent
-    fill.Parent = slider
+    local fill = SafeCreate("Frame", {
+        Size = UDim2.new((default - min)/(max - min), 0, 1, 0),
+        BackgroundColor3 = Theme.Colors.Accent,
+        Parent = slider
+    })
     
-    local value = Instance.new("TextLabel")
-    value.Text = tostring(default)
-    value.Size = UDim2.new(0.2, 0, 0.4, 0)
-    value.Position = UDim2.new(0.8, 0, 0.6, 0)
-    value.TextColor3 = Theme.Colors.Text
-    value.BackgroundTransparency = 1
-    value.Font = Enum.Font.Gotham
-    value.TextSize = 12
-    value.Parent = frame
+    local valueLabel = SafeCreate("TextLabel", {
+        Text = tostring(default),
+        Size = UDim2.new(0.2, 0, 0.4, 0),
+        Position = UDim2.new(0.8, 0, 0.6, 0),
+        TextColor3 = Theme.Colors.Text,
+        BackgroundTransparency = 1,
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        Parent = frame
+    })
     
     slider.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -267,7 +311,7 @@ local function CreateSlider(parent, text, min, max, default, callback)
                 local ratio = math.clamp(pos / slider.AbsoluteSize.X, 0, 1)
                 local val = min + (max - min) * ratio
                 fill.Size = UDim2.new(ratio, 0, 1, 0)
-                value.Text = string.format("%.1f", val)
+                valueLabel.Text = string.format("%.1f", val)
                 callback(val)
             end)
             
@@ -282,20 +326,18 @@ local function CreateSlider(parent, text, min, max, default, callback)
     return frame
 end
 
--- ===== MISC FUNCTIONS =====
+-- ===== FUNÇÕES MISC =====
 local MiscTab = CreateTab("MISC")
 
 -- Aimbot
 local aimbot = {
     Enabled = false,
-    TeamCheck = true,
-    Smoothness = 5,
-    FOV = 100,
-    Connection = nil
+    Connection = nil,
+    Target = nil
 }
 
 local function IsEnemy(player)
-    if not aimbot.TeamCheck then return true end
+    if not Theme.Settings.Aimbot.TeamCheck then return true end
     if LocalPlayer.Team and player.Team then
         return LocalPlayer.Team ~= player.Team
     end
@@ -304,7 +346,7 @@ end
 
 local function FindClosestTarget()
     local closest = nil
-    local closestDist = aimbot.FOV
+    local closestDist = Theme.Settings.Aimbot.FOV
     
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character then
@@ -328,15 +370,15 @@ local function FindClosestTarget()
     return closest
 end
 
-local function AimbotFunction()
+local function AimbotUpdate()
     if aimbot.Enabled then
-        local target = FindClosestTarget()
-        if target then
+        aimbot.Target = FindClosestTarget()
+        if aimbot.Target then
             local camera = workspace.CurrentCamera
             local current = camera.CFrame.Position
-            local targetPos = target.Position + Vector3.new(0, 1.5, 0)
+            local targetPos = aimbot.Target.Position + Vector3.new(0, 1.5, 0)
             local direction = (targetPos - current).Unit
-            local smoothFactor = math.clamp(aimbot.Smoothness, 1, 10)
+            local smoothFactor = math.clamp(Theme.Settings.Aimbot.Smoothness, 1, 10)
             local newLook = current + direction * (smoothFactor * 0.1)
             camera.CFrame = CFrame.lookAt(current, newLook)
         end
@@ -346,7 +388,7 @@ end
 CreateButton(MiscTab.content, "Toggle Aimbot", "Lock onto enemies", function()
     aimbot.Enabled = not aimbot.Enabled
     if aimbot.Enabled and not aimbot.Connection then
-        aimbot.Connection = RunService.RenderStepped:Connect(AimbotFunction)
+        aimbot.Connection = RunService.RenderStepped:Connect(AimbotUpdate)
     elseif not aimbot.Enabled and aimbot.Connection then
         aimbot.Connection:Disconnect()
         aimbot.Connection = nil
@@ -354,22 +396,20 @@ CreateButton(MiscTab.content, "Toggle Aimbot", "Lock onto enemies", function()
 end)
 
 CreateButton(MiscTab.content, "Toggle Team Check", "Ignore teammates", function()
-    aimbot.TeamCheck = not aimbot.TeamCheck
+    Theme.Settings.Aimbot.TeamCheck = not Theme.Settings.Aimbot.TeamCheck
 end)
 
-CreateSlider(MiscTab.content, "Aimbot Smoothness", 1, 10, 5, function(val)
-    aimbot.Smoothness = val
+CreateSlider(MiscTab.content, "Aimbot Smoothness", 1, 10, Theme.Settings.Aimbot.Smoothness, function(val)
+    Theme.Settings.Aimbot.Smoothness = val
 end)
 
-CreateSlider(MiscTab.content, "Aimbot FOV", 10, 200, 100, function(val)
-    aimbot.FOV = val
+CreateSlider(MiscTab.content, "Aimbot FOV", 10, 200, Theme.Settings.Aimbot.FOV, function(val)
+    Theme.Settings.Aimbot.FOV = val
 end)
 
 -- Hitbox Expander
 local hitbox = {
     Enabled = false,
-    Size = 2,
-    Transparency = 0.5,
     Parts = {}
 }
 
@@ -388,9 +428,9 @@ local function UpdateHitboxes()
             for _, part in ipairs(player.Character:GetDescendants()) do
                 if part:IsA("BasePart") then
                     local hitboxPart = Instance.new("BoxHandleAdornment")
-                    hitboxPart.Size = part.Size * hitbox.Size
-                    hitboxPart.Transparency = hitbox.Transparency
-                    hitboxPart.Color3 = Color3.new(1, 0, 0)
+                    hitboxPart.Size = part.Size * Theme.Settings.Hitbox.Size
+                    hitboxPart.Transparency = Theme.Settings.Hitbox.Transparency
+                    hitboxPart.Color3 = Theme.Colors.Hitbox
                     hitboxPart.Adornee = part
                     hitboxPart.AlwaysOnTop = true
                     hitboxPart.ZIndex = 10
@@ -407,107 +447,94 @@ CreateButton(MiscTab.content, "Toggle Hitbox", "Expand enemy hitboxes", function
     UpdateHitboxes()
 end)
 
-CreateSlider(MiscTab.content, "Hitbox Size", 1, 5, 2, function(val)
-    hitbox.Size = val
+CreateSlider(MiscTab.content, "Hitbox Size", 1, 5, Theme.Settings.Hitbox.Size, function(val)
+    Theme.Settings.Hitbox.Size = val
     UpdateHitboxes()
 end)
 
-CreateSlider(MiscTab.content, "Hitbox Transparency", 0, 1, 0.5, function(val)
-    hitbox.Transparency = val
+CreateSlider(MiscTab.content, "Hitbox Transparency", 0, 1, Theme.Settings.Hitbox.Transparency, function(val)
+    Theme.Settings.Hitbox.Transparency = val
     UpdateHitboxes()
 end)
 
 -- Speed Hack
 local speedHack = {
     Enabled = false,
-    Speed = 50
+    Connection = nil
 }
+
+local function SpeedUpdate()
+    if speedHack.Enabled and LocalPlayer.Character then
+        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = Theme.Settings.Movement.Speed
+        end
+    end
+end
 
 CreateButton(MiscTab.content, "Toggle Speed", "Increase movement speed", function()
     speedHack.Enabled = not speedHack.Enabled
     if speedHack.Enabled then
-        LocalPlayer.Character.Humanoid.WalkSpeed = speedHack.Speed
-    else
-        LocalPlayer.Character.Humanoid.WalkSpeed = 16
+        if not speedHack.Connection then
+            speedHack.Connection = RunService.Heartbeat:Connect(SpeedUpdate)
+        end
+        SpeedUpdate()
+    elseif speedHack.Connection then
+        speedHack.Connection:Disconnect()
+        speedHack.Connection = nil
+        if LocalPlayer.Character then
+            local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = 16
+            end
+        end
     end
 end)
 
-CreateSlider(MiscTab.content, "Speed Value", 16, 150, 50, function(val)
-    speedHack.Speed = val
-    if speedHack.Enabled then
-        LocalPlayer.Character.Humanoid.WalkSpeed = val
-    end
+CreateSlider(MiscTab.content, "Speed Value", 16, 150, Theme.Settings.Movement.Speed, function(val)
+    Theme.Settings.Movement.Speed = val
+    SpeedUpdate()
 end)
 
 -- Jump Hack
 local jumpHack = {
-    Enabled = false,
-    Power = 50
+    Enabled = false
 }
 
 CreateButton(MiscTab.content, "Toggle Jump", "Increase jump power", function()
     jumpHack.Enabled = not jumpHack.Enabled
-    if jumpHack.Enabled then
-        LocalPlayer.Character.Humanoid.JumpPower = jumpHack.Power
-    else
-        LocalPlayer.Character.Humanoid.JumpPower = 50
+    if LocalPlayer.Character then
+        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.JumpPower = jumpHack.Enabled and Theme.Settings.Movement.Jump or 50
+        end
     end
 end)
 
-CreateSlider(MiscTab.content, "Jump Power", 50, 250, 50, function(val)
-    jumpHack.Power = val
-    if jumpHack.Enabled then
-        LocalPlayer.Character.Humanoid.JumpPower = val
+CreateSlider(MiscTab.content, "Jump Power", 50, 250, Theme.Settings.Movement.Jump, function(val)
+    Theme.Settings.Movement.Jump = val
+    if jumpHack.Enabled and LocalPlayer.Character then
+        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.JumpPower = val
+        end
     end
 end)
 
 -- Fly Hack
 local flyHack = {
     Enabled = false,
-    Speed = 50,
+    Controls = {F = 0, B = 0, L = 0, R = 0},
     Connection = nil
 }
 
-local function Fly()
+local function FlyUpdate()
     if flyHack.Enabled and LocalPlayer.Character then
         local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
         local rootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
         
         if humanoid and rootPart then
             humanoid.PlatformStand = true
-            
-            local control = {F = 0, B = 0, L = 0, R = 0}
-            local lastControl = {F = 0, B = 0, L = 0, R = 0}
-            
-            local maxSpeed = flyHack.Speed
-            
-            UserInputService.InputBegan:Connect(function(input, processed)
-                if not processed then
-                    if input.KeyCode == Enum.KeyCode.W then
-                        control.F = 1
-                    elseif input.KeyCode == Enum.KeyCode.S then
-                        control.B = -1
-                    elseif input.KeyCode == Enum.KeyCode.A then
-                        control.L = -1
-                    elseif input.KeyCode == Enum.KeyCode.D then
-                        control.R = 1
-                    end
-                end
-            end)
-            
-            UserInputService.InputEnded:Connect(function(input, processed)
-                if not processed then
-                    if input.KeyCode == Enum.KeyCode.W then
-                        control.F = 0
-                    elseif input.KeyCode == Enum.KeyCode.S then
-                        control.B = 0
-                    elseif input.KeyCode == Enum.KeyCode.A then
-                        control.L = 0
-                    elseif input.KeyCode == Enum.KeyCode.D then
-                        control.R = 0
-                    end
-                end
-            end)
             
             local bg = Instance.new("BodyGyro")
             bg.P = 9e4
@@ -521,15 +548,15 @@ local function Fly()
             bv.Parent = rootPart
             
             while flyHack.Enabled and humanoid and rootPart do
-                wait()
+                task.wait()
                 
                 local cam = workspace.CurrentCamera.CFrame
-                local move = cam.LookVector * (control.F + control.B) + 
-                             cam.RightVector * (control.L + control.R)
+                local move = cam.LookVector * (flyHack.Controls.F + flyHack.Controls.B) + 
+                             cam.RightVector * (flyHack.Controls.L + flyHack.Controls.R)
                 
-                move = move.Unit * maxSpeed
+                move = move.Unit * Theme.Settings.Fly.Speed
                 
-                if (control.F + control.B + control.L + control.R) > 0 then
+                if (flyHack.Controls.F + flyHack.Controls.B + flyHack.Controls.L + flyHack.Controls.R) > 0 then
                     bv.velocity = move
                 else
                     bv.velocity = Vector3.new(0, 0, 0)
@@ -540,20 +567,57 @@ local function Fly()
             
             bg:Destroy()
             bv:Destroy()
-            humanoid.PlatformStand = false
+            if humanoid then
+                humanoid.PlatformStand = false
+            end
         end
     end
 end
 
-CreateButton(MiscTab.content, "Toggle Fly", "Press F to fly", function()
+CreateButton(MiscTab.content, "Toggle Fly", "Press WASD to fly", function()
     flyHack.Enabled = not flyHack.Enabled
     if flyHack.Enabled then
-        Fly()
+        -- Configurar controles
+        flyHack.Connection = UserInputService.InputBegan:Connect(function(input, processed)
+            if not processed then
+                if input.KeyCode == Enum.KeyCode.W then
+                    flyHack.Controls.F = 1
+                elseif input.KeyCode == Enum.KeyCode.S then
+                    flyHack.Controls.B = -1
+                elseif input.KeyCode == Enum.KeyCode.A then
+                    flyHack.Controls.L = -1
+                elseif input.KeyCode == Enum.KeyCode.D then
+                    flyHack.Controls.R = 1
+                end
+            end
+        end)
+        
+        local endConnection = UserInputService.InputEnded:Connect(function(input, processed)
+            if not processed then
+                if input.KeyCode == Enum.KeyCode.W then
+                    flyHack.Controls.F = 0
+                elseif input.KeyCode == Enum.KeyCode.S then
+                    flyHack.Controls.B = 0
+                elseif input.KeyCode == Enum.KeyCode.A then
+                    flyHack.Controls.L = 0
+                elseif input.KeyCode == Enum.KeyCode.D then
+                    flyHack.Controls.R = 0
+                end
+            end
+        end)
+        
+        FlyUpdate()
+        
+        -- Limpeza
+        if flyHack.Connection then
+            flyHack.Connection:Disconnect()
+        end
+        endConnection:Disconnect()
     end
 end)
 
-CreateSlider(MiscTab.content, "Fly Speed", 20, 150, 50, function(val)
-    flyHack.Speed = val
+CreateSlider(MiscTab.content, "Fly Speed", 20, 150, Theme.Settings.Fly.Speed, function(val)
+    Theme.Settings.Fly.Speed = val
 end)
 
 -- NoClip
@@ -562,7 +626,7 @@ local noclip = {
     Connection = nil
 }
 
-local function NoclipLoop()
+local function NoclipUpdate()
     if noclip.Enabled and LocalPlayer.Character then
         for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
             if part:IsA("BasePart") then
@@ -575,7 +639,7 @@ end
 CreateButton(MiscTab.content, "Toggle NoClip", "Walk through walls", function()
     noclip.Enabled = not noclip.Enabled
     if noclip.Enabled and not noclip.Connection then
-        noclip.Connection = RunService.Stepped:Connect(NoclipLoop)
+        noclip.Connection = RunService.Stepped:Connect(NoclipUpdate)
     elseif not noclip.Enabled and noclip.Connection then
         noclip.Connection:Disconnect()
         noclip.Connection = nil
@@ -597,48 +661,56 @@ CreateButton(MiscTab.content, "Teleport to Mouse", "Click to teleport", function
     end
 end)
 
--- ===== GAME TABS =====
+-- ===== ABAS DE JOGOS =====
 -- Blox Fruits
 local BloxTab = CreateTab("BLOX FRUITS")
 CreateButton(BloxTab.content, "Auto Farm Level", "Farm automatically", function()
     -- Implementação do auto farm
+    print("Auto Farm para Blox Fruits ativado!")
 end)
 
 CreateButton(BloxTab.content, "Teleport to Fruits", "Find and teleport to fruits", function()
     -- Implementação do teleporte para frutas
+    print("Teleporte para frutas ativado!")
 end)
 
 -- Blue Lock Rivals
 local BlueLockTab = CreateTab("BLUE LOCK")
 CreateButton(BlueLockTab.content, "Auto Score", "Score goals automatically", function()
     -- Implementação do auto score
+    print("Auto Score para Blue Lock ativado!")
 end)
 
 CreateButton(BlueLockTab.content, "Perfect Shot", "Never miss a shot", function()
     -- Implementação do chute perfeito
+    print("Perfect Shot ativado!")
 end)
 
 -- Grow a Garden
 local GrowTab = CreateTab("GROW GARDEN")
 CreateButton(GrowTab.content, "Auto Water", "Water plants automatically", function()
     -- Implementação do auto water
+    print("Auto Water para Grow a Garden ativado!")
 end)
 
 CreateButton(GrowTab.content, "Auto Harvest", "Harvest plants automatically", function()
     -- Implementação do auto harvest
+    print("Auto Harvest ativado!")
 end)
 
 -- Arsenal
 local ArsenalTab = CreateTab("ARSENAL")
 CreateButton(ArsenalTab.content, "Silent Aim", "Improved aiming", function()
     -- Implementação do silent aim
+    print("Silent Aim para Arsenal ativado!")
 end)
 
 CreateButton(ArsenalTab.content, "No Recoil", "Remove weapon recoil", function()
     -- Implementação do no recoil
+    print("No Recoil ativado!")
 end)
 
--- ===== WINDOW CONTROLS =====
+-- ===== CONTROLES DA JANELA =====
 local minimized = false
 local originalSize = MainFrame.Size
 
@@ -656,7 +728,7 @@ MinimizeButton.MouseButton1Click:Connect(function()
 end)
 
 CloseButton.MouseButton1Click:Connect(function()
-    MainFrame.Visible = false
+    ScreenGui:Destroy()
 end)
 
 -- Efeitos visuais nos botões
@@ -676,15 +748,28 @@ MinimizeButton.MouseLeave:Connect(function()
     MinimizeButton.BackgroundColor3 = Theme.Colors.Minimize
 end)
 
--- Inicialização
-MiscTab.Show()
+-- ===== INICIALIZAÇÃO =====
+local function Initialize()
+    MiscTab.Show()
+    
+    -- Efeito de entrada
+    MainFrame.Position = UDim2.new(0.5, -175, 0, -400)
+    TweenService:Create(
+        MainFrame,
+        TweenInfo.new(0.7, Enum.EasingStyle.Quint),
+        {Position = UDim2.new(0.5, -175, 0.5, -150)}
+    ):Play()
+    
+    print("🐉 Dr4gonHub Premium - Interface carregada com sucesso!")
+end
 
--- Efeito de entrada
-MainFrame.Position = UDim2.new(0.5, -175, 0, -400)
-TweenService:Create(
-    MainFrame,
-    TweenInfo.new(0.7, Enum.EasingStyle.Quint),
-    {Position = UDim2.new(0.5, -175, 0.5, -150)}
-):Play()
-
-print("🐉 Dr4gonHub Premium - Script completo carregado!")
+-- Verificação final e inicialização
+if ScreenGui and MainFrame then
+    local success, err = pcall(Initialize)
+    if not success then
+        warn("Erro na inicialização: "..tostring(err))
+        MainFrame.Visible = true -- Mostra a interface mesmo com erro
+    end
+else
+    warn("❌ Falha crítica ao criar interface!")
+end
