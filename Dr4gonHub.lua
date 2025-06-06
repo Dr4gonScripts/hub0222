@@ -1,186 +1,130 @@
 --[[
-  Dr4gonHub Premium - Versão Temática Chinesa
-  Design: Dragões, lanternas vermelhas e elementos tradicionais
-  Funcionalidades: Utilitários + Hubs para jogos populares
+  █▀▀ █▀█ █▀▀ ▀█▀ █▀▀ █▀█ █▀▄ █▀▀
+  █▄▄ █▄█ █▄▄ ░█░ ██▄ █▀▄ █▄▀ ██▄
+  Dr4gonHub Premium - Edição Oriental
 ]]
 
 local Player = game:GetService("Players").LocalPlayer
 local Mouse = Player:GetMouse()
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
 
--- =============== CONFIGURAÇÃO DO TEMA ===============
+-- Configuração do Tema Oriental
 local Theme = {
     Colors = {
-        Primary = Color3.fromRGB(188, 10, 28),    -- Vermelho chinês
-        Secondary = Color3.fromRGB(255, 212, 96), -- Dourado imperial
-        Background = Color3.fromRGB(25, 20, 15),  -- Preto lacado
-        Text = Color3.fromRGB(255, 255, 255),
-        Accent = Color3.fromRGB(87, 20, 28)       -- Vermelho escuro
+        Primary = Color3.fromRGB(188, 10, 28),   -- Vermelho chinês
+        Secondary = Color3.fromRGB(255, 212, 96) -- Dourado
     },
-    Images = {
-        Dragon = "rbxassetid://14204253922",      -- Dragão dourado
-        Lantern = "rbxassetid://14204257810",     -- Lanterna vermelha
-        Pattern = "rbxassetid://14204261233",     -- Padrão de seda
-        Seal = "rbxassetid://14204265000"         -- Selo imperial
-    },
-    Icons = {
-        Utility = "⚔️",  -- Espadas cruzadas
-        Blox = "🍜",     -- Macarrão da sorte
-        Brookhaven = "🏯", -- Pagode
-        Arsenal = "🎆",   -- Fogos de artifício
-        AdoptMe = "🐉",  -- Dragão
-        Settings = "🀄"  -- Peça de mahjong
-    },
-    Sounds = {
-        Open = "rbxassetid://9119658371",        -- Som de gongo
-        Click = "rbxassetid://9119659103"        -- Som de sino
+    Symbols = {
+        Dragon = "🐉",
+        Lantern = "🏮",
+        Sword = "⚔️",
+        YinYang = "☯"
     }
 }
 
--- =============== BIBLIOTECA DE UI ===============
-local Flux = {
-    CurrentTheme = Theme,
-    Elements = {}
-}
-
-function Flux:CreateElement(type, properties)
-    local element = Instance.new(type)
-    for prop, value in pairs(properties) do
-        element[prop] = value
-    end
-    table.insert(self.Elements, element)
-    return element
-end
-
-function Flux:Window(name, description)
-    local window = {
-        Tabs = {},
-        UI = {}
-    }
-    
-    -- Cria a janela principal
-    function window:BuildUI()
-        -- ScreenGui principal
-        local screenGui = self:CreateElement("ScreenGui", {
-            Name = "DragonHubUI",
-            ResetOnSpawn = false,
-            Parent = Player:WaitForChild("PlayerGui")
-        })
-        
-        -- Frame principal (biombo chinês)
-        local mainFrame = self:CreateElement("Frame", {
-            Size = UDim2.new(0.35, 0, 0.6, 0),
-            Position = UDim2.new(0.325, 0, 0.2, 0),
-            BackgroundColor3 = Theme.Colors.Background,
-            BackgroundTransparency = 0.1,
-            ClipsDescendants = true,
-            Parent = screenGui
-        })
-        
-        -- Padrão de fundo
-        self:CreateElement("ImageLabel", {
-            Image = Theme.Images.Pattern,
-            ImageTransparency = 0.93,
-            ScaleType = Enum.ScaleType.Tile,
-            TileSize = UDim2.new(0, 100, 0, 100),
-            Size = UDim2.new(1, 0, 1, 0),
-            Parent = mainFrame
-        })
-        
-        -- Cabeçalho com dragão
-        local header = self:CreateElement("Frame", {
-            Size = UDim2.new(1, 0, 0.12, 0),
-            BackgroundColor3 = Theme.Colors.Primary,
-            BorderSizePixel = 0,
-            Parent = mainFrame
-        })
-        
-        -- Dragão animado
-        local dragon = self:CreateElement("ImageLabel", {
-            Image = Theme.Images.Dragon,
-            Size = UDim2.new(0.15, 0, 1.5, 0),
-            Position = UDim2.new(0.02, 0, -0.25, 0),
-            AnchorPoint = Vector2.new(0, 0.5),
-            BackgroundTransparency = 1,
-            Parent = header
-        })
-        
-        -- Animação do dragão
-        game:GetService("RunService").Heartbeat:Connect(function(dt)
-            dragon.Rotation = math.sin(os.clock() * 2) * 3
-        end)
-        
-        -- Título
-        self:CreateElement("TextLabel", {
-            Text = "龍王 "..name, -- 龍王 = "Rei Dragão"
-            Font = Enum.Font.GothamBold,
-            TextSize = 18,
-            TextColor3 = Theme.Colors.Secondary,
-            Size = UDim2.new(0.7, 0, 0.8, 0),
-            Position = UDim2.new(0.2, 0, 0.1, 0),
-            BackgroundTransparency = 1,
-            Parent = header
-        })
-        
-        -- Lanterna decorativa
-        self:CreateElement("ImageLabel", {
-            Image = Theme.Images.Lantern,
-            Size = UDim2.new(0.1, 0, 0.2, 0),
-            Position = UDim2.new(0.9, 0, -0.05, 0),
-            BackgroundTransparency = 1,
-            Parent = header
-        })
-        
-        -- [...] (Continua com outros elementos UI)
-        
-        window.UI.MainFrame = mainFrame
-        return mainFrame
-    end
-    
-    -- [...] (Implementar MakeTab, AddSection, etc.)
-    
-    return window
-end
-
--- =============== DR4GONHUB ===============
-local Window = Flux:Window("Dr4gonHub", "O Poder do Dragão")
-Window:BuildUI()
+-- Janela Principal
+local Window = OrionLib:MakeWindow({
+    Name = "龍王 Hub",  -- "Rei Dragão" em chinês
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "Dr4gonHubConfig",
+    IntroEnabled = true,
+    IntroText = "歡迎使用",  -- "Bem-vindo" em chinês
+    IntroIcon = "rbxassetid://14204253922"  -- ID de imagem de dragão
+})
 
 -- =============== UTILITÁRIOS ===============
 local UtilityTab = Window:MakeTab({
-    Name = Theme.Icons.Utility .. " Artes Marciais",
-    Icon = Theme.Images.Seal
+    Name = Theme.Symbols.Sword .. " Utilitários",
+    Icon = "rbxassetid://0"
 })
 
-UtilityTab:AddSection({Name = "🏮 Controles do Guerreiro"})
+-- Seção de Movimento
+UtilityTab:AddSection({Name = Theme.Symbols.YinYang .. " Controles"})
 
--- Slider de velocidade com temática
 UtilityTab:AddSlider({
-    Name = "Velocidade do Dragão",
+    Name = "WalkSpeed 速度",  -- "速度" = velocidade
     Min = 16,
-    Max = 200,
+    Max = 500,
     Default = 16,
-    Callback = function(value)
+    Color = Theme.Colors.Primary,
+    Callback = function(Value)
         pcall(function()
-            local humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.WalkSpeed = value
+            Player.Character.Humanoid.WalkSpeed = Value
+        end)
+    end
+})
+
+UtilityTab:AddSlider({
+    Name = "JumpPower 跳躍",  -- "跳躍" = pulo
+    Min = 50,
+    Max = 500,
+    Default = 50,
+    Color = Theme.Colors.Secondary,
+    Callback = function(Value)
+        pcall(function()
+            Player.Character.Humanoid.JumpPower = Value
+        end)
+    end
+})
+
+-- Sistema de Voo
+UtilityTab:AddToggle({
+    Name = "Fly 飛行 (F)",  -- "飛行" = voar
+    Default = false,
+    Callback = function(Value)
+        -- Implementação do fly
+    end
+})
+
+-- Teleporte
+UtilityTab:AddButton({
+    Name = "TP 傳送 (T)",  -- "傳送" = teleporte
+    Callback = function()
+        game:GetService("UserInputService").InputBegan:Connect(function(input)
+            if input.KeyCode == Enum.KeyCode.T then
+                Player.Character.HumanoidRootPart.CFrame = CFrame.new(Mouse.Hit.Position + Vector3.new(0, 3, 0))
             end
         end)
     end
 })
 
--- [...] (Implementar outras abas e funções)
-
--- Efeito de inicialização
-task.spawn(function()
-    local sound = Instance.new("Sound")
-    sound.SoundId = Theme.Sounds.Open
-    sound.Parent = workspace
-    sound:Play()
-    
-    for i = 1, 5 do
-        -- Efeito visual de fogos
-        print("✨🎆✨ 龍王 Hub Iniciado ✨🎆✨")
-        task.wait(0.3)
+-- Iluminação
+UtilityTab:AddToggle({
+    Name = "Light 光",  -- "光" = luz
+    Default = false,
+    Callback = function(Value)
+        -- Implementação da luz
     end
-end)
+})
+
+-- Noclip
+UtilityTab:AddToggle({
+    Name = "Noclip 穿透",  -- "穿透" = atravessar
+    Default = false,
+    Callback = function(Value)
+        -- Implementação do noclip
+    end
+})
+
+-- Anti-AFK
+UtilityTab:AddButton({
+    Name = "Anti-AFK 反閒置",  -- "反閒置" = anti-ocioso
+    Callback = function()
+        local vu = game:GetService("VirtualUser")
+        Player.Idled:Connect(function()
+            vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            task.wait(1)
+            vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        end)
+    end
+})
+
+OrionLib:Init()
+
+-- Mensagem no console
+print([[
+
+  龍王 Hub 已激活  - 龍王 = "Rei Dragão"
+  ▄︻デ══━💥 ヾ(⌐■_■)ノ♪
+]])
