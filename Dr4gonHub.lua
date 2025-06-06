@@ -1,44 +1,35 @@
--- Carrega a OrionLib modificada de jensonhirst
+-- Carrega a OrionLib antiga
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()
 
--- Referência ao jogador local
-local player = game.Players.LocalPlayer
+local Player = game.Players.LocalPlayer
 
 -- Cria a janela principal
 local Window = OrionLib:MakeWindow({
     Name = "Dr4gonHub",
     HidePremium = false,
     SaveConfig = true,
-    ConfigFolder = "Dr4gonHubConfig"
+    ConfigFolder = "Dr4gonHub"
 })
 
--- Cria a aba Misc
-local Tab = Window:MakeTab({
+-- TAB: Misc
+local MiscTab = Window:MakeTab({
     Name = "Misc",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
-Tab:AddSection({
+MiscTab:AddSection({
     Name = "Utilitários"
 })
 
--- Notificação de boas-vindas
-OrionLib:MakeNotification({
-    Name = "Inicializando...",
-    Content = "Bem-vindo ao Dr4gonHub!",
-    Image = "rbxassetid://4483345998",
-    Time = 5
-})
-
--- Anti-AFK
-Tab:AddButton({
+-- Botão: Anti-AFK
+MiscTab:AddButton({
     Name = "Ativar Anti-AFK",
     Callback = function()
         local vu = game:GetService("VirtualUser")
-        player.Idled:Connect(function()
+        Player.Idled:Connect(function()
             vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-            task.wait(1)
+            wait(1)
             vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
         end)
         OrionLib:MakeNotification({
@@ -49,12 +40,12 @@ Tab:AddButton({
     end
 })
 
--- Resetar status
-Tab:AddButton({
+-- Botão: Resetar Status
+MiscTab:AddButton({
     Name = "Resetar WalkSpeed e JumpPower",
     Callback = function()
-        local char = player.Character or player.CharacterAdded:Wait()
-        local hum = char:FindFirstChildOfClass("Humanoid")
+        local char = Player.Character or Player.CharacterAdded:Wait()
+        local hum = char:FindFirstChildWhichIsA("Humanoid")
         if hum then
             hum.WalkSpeed = 16
             hum.JumpPower = 50
@@ -62,29 +53,48 @@ Tab:AddButton({
     end
 })
 
--- WalkSpeed 100
-Tab:AddButton({
+-- Botão: Aumentar velocidade
+MiscTab:AddButton({
     Name = "WalkSpeed 100",
     Callback = function()
-        local char = player.Character or player.CharacterAdded:Wait()
-        local hum = char:FindFirstChildOfClass("Humanoid")
+        local char = Player.Character or Player.CharacterAdded:Wait()
+        local hum = char:FindFirstChildWhichIsA("Humanoid")
         if hum then
             hum.WalkSpeed = 100
         end
     end
 })
 
--- JumpPower 100
-Tab:AddButton({
+-- Botão: Aumentar pulo
+MiscTab:AddButton({
     Name = "JumpPower 100",
     Callback = function()
-        local char = player.Character or player.CharacterAdded:Wait()
-        local hum = char:FindFirstChildOfClass("Humanoid")
+        local char = Player.Character or Player.CharacterAdded:Wait()
+        local hum = char:FindFirstChildWhichIsA("Humanoid")
         if hum then
             hum.JumpPower = 100
         end
     end
 })
 
--- Abre a UI
+-- TAB: Blox Fruits
+local BFruitsTab = Window:MakeTab({
+    Name = "🍎 Blox Fruits",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+BFruitsTab:AddSection({
+    Name = "Hubs e Scripts"
+})
+
+-- Botão: Speed Hub X
+BFruitsTab:AddButton({
+    Name = "Speed Hub X",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+    end
+})
+
+-- Inicializa a UI
 OrionLib:Init()
