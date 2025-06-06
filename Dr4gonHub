@@ -150,3 +150,62 @@ Tab:AddButton({
         teleportPlayer(player, destinationPosition)
     end
 })
+
+local Tab = Window:MakeTab({
+	Name = "Grow a garden",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+--[[
+Name = <string> - The name of the tab.
+Icon = <string> - The icon of the tab.
+PremiumOnly = <bool> - Makes the tab accessible to Sirus Premium users only.
+]]
+
+local Section = Tab:AddSection({
+	Name = "Section"
+})
+
+--[[
+Name = <string> - The name of the section.
+]]
+
+Tab:AddButton({
+	Name = "Speed X hub",
+	Callback = function()
+ local function executarScript()
+    -- Carregue o script
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+end
+
+-- Adicione um evento de clique ao botão
+botao.Touched:Connect(function(hit)
+    -- Verifique se o botão foi clicado por um jogador
+    if hit.Parent:FindFirstChild("Humanoid") then
+        -- Execute a função para executar o outro script
+        executarScript()
+    end
+end)
+
+--[[
+Name = <string> - The name of the button.
+Callback = <function> - The function of the button.
+]]
+
+Tab:AddButton({
+	Name = "Seed Spawner",
+	Callback = function()
+ local function executarScript()
+    -- Carregue o script
+    loadstring(game:HttpGet("https://codeberg.org/twentys2/Scripts/raw/branch/main/Grow-A-Garden"))()
+end
+
+-- Adicione um evento de clique ao botão
+botao.Touched:Connect(function(hit)
+    -- Verifique se o botão foi clicado por um jogador
+    if hit.Parent:FindFirstChild("Humanoid") then
+        -- Execute a função para executar o outro script
+        executarScript()
+    end
+end)
