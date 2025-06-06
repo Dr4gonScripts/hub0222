@@ -17,15 +17,15 @@ local miscTab = Window:MakeTab({
     PremiumOnly = false
 })
 
-miscTab:AddSection({ Name = "Section" })
+miscTab:AddSection({ Name = "Funções Diversas" })
 
--- Botões
 miscTab:AddButton({
     Name = "Speed",
     Callback = function()
-        local char = player.Character
-        if char and char:FindFirstChild("Humanoid") then
-            char.Humanoid.WalkSpeed = 100
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hum = char:FindFirstChildWhichIsA("Humanoid")
+        if hum then
+            hum.WalkSpeed = 100
         end
     end
 })
@@ -33,9 +33,10 @@ miscTab:AddButton({
 miscTab:AddButton({
     Name = "Jump",
     Callback = function()
-        local char = player.Character
-        if char and char:FindFirstChild("Humanoid") then
-            char.Humanoid.JumpPower = 100
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hum = char:FindFirstChildWhichIsA("Humanoid")
+        if hum then
+            hum.JumpPower = 100
         end
     end
 })
@@ -74,9 +75,10 @@ miscTab:AddButton({
     Name = "Teletransportar",
     Callback = function()
         local dest = Vector3.new(0, 50, 0)
-        local char = player.Character
-        if char and char:FindFirstChild("HumanoidRootPart") then
-            char.HumanoidRootPart.CFrame = CFrame.new(dest)
+        local char = player.Character or player.CharacterAdded:Wait()
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if root then
+            root.CFrame = CFrame.new(dest)
         end
     end
 })
@@ -84,10 +86,11 @@ miscTab:AddButton({
 miscTab:AddButton({
     Name = "Resetar Status",
     Callback = function()
-        local char = player.Character
-        if char and char:FindFirstChild("Humanoid") then
-            char.Humanoid.WalkSpeed = 16
-            char.Humanoid.JumpPower = 50
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hum = char:FindFirstChildWhichIsA("Humanoid")
+        if hum then
+            hum.WalkSpeed = 16
+            hum.JumpPower = 50
         end
     end
 })
@@ -109,17 +112,17 @@ miscTab:AddButton({
     end
 })
 
--- Tab: Grow a garden
+-- Tab: Grow a Garden
 local gardenTab = Window:MakeTab({
-    Name = "Grow a garden",
+    Name = "Grow a Garden",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
-gardenTab:AddSection({ Name = "Seção Grow a Garden" })
+gardenTab:AddSection({ Name = "Scripts Externos" })
 
 gardenTab:AddButton({
-    Name = "Speed X hub",
+    Name = "Speed X Hub",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
     end
