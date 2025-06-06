@@ -164,3 +164,4 @@ Tab:AddButton({
 
 
 OrionLib:Init()
+ print("Dr4gonHub carregado")
