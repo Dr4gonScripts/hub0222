@@ -1,66 +1,90 @@
--- Carregar OrionLib
+-- Carrega a OrionLib modificada de jensonhirst
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()
 
--- Criar janela principal
+-- Referência ao jogador local
+local player = game.Players.LocalPlayer
+
+-- Cria a janela principal
 local Window = OrionLib:MakeWindow({
     Name = "Dr4gonHub",
     HidePremium = false,
     SaveConfig = true,
-    ConfigFolder = "Dr4gonHub"
+    ConfigFolder = "Dr4gonHubConfig"
 })
 
--- Criar aba 'Misc'
-local MiscTab = Window:MakeTab({
+-- Cria a aba Misc
+local Tab = Window:MakeTab({
     Name = "Misc",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
--- Adicionar seção
-MiscTab:AddSection({
-    Name = "Funções Diversas"
+Tab:AddSection({
+    Name = "Utilitários"
 })
 
--- Botão de velocidade
-MiscTab:AddButton({
-    Name = "Aumentar Velocidade",
+-- Notificação de boas-vindas
+OrionLib:MakeNotification({
+    Name = "Inicializando...",
+    Content = "Bem-vindo ao Dr4gonHub!",
+    Image = "rbxassetid://4483345998",
+    Time = 5
+})
+
+-- Anti-AFK
+Tab:AddButton({
+    Name = "Ativar Anti-AFK",
     Callback = function()
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 100
+        local vu = game:GetService("VirtualUser")
+        player.Idled:Connect(function()
+            vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+            task.wait(1)
+            vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        end)
+        OrionLib:MakeNotification({
+            Name = "Anti-AFK",
+            Content = "Anti-AFK ativado com sucesso!",
+            Time = 5
+        })
     end
 })
 
--- Botão de pulo
-MiscTab:AddButton({
-    Name = "Aumentar Pulo",
+-- Resetar status
+Tab:AddButton({
+    Name = "Resetar WalkSpeed e JumpPower",
     Callback = function()
-        game.Players.LocalPlayer.Character.Humanoid.JumpPower = 100
-    end
-})
-
--- Botão de resetar status
-MiscTab:AddButton({
-    Name = "Resetar Status",
-    Callback = function()
-        local humanoid = game.Players.LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = 16
-            humanoid.JumpPower = 50
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.WalkSpeed = 16
+            hum.JumpPower = 50
         end
     end
 })
 
--- Botão Anti-AFK
-MiscTab:AddButton({
-    Name = "Ativar Anti-AFK",
+-- WalkSpeed 100
+Tab:AddButton({
+    Name = "WalkSpeed 100",
     Callback = function()
-        local vu = game:GetService("VirtualUser")
-        game.Players.LocalPlayer.Idled:Connect(function()
-            vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-            wait(1)
-            vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-        end)
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.WalkSpeed = 100
+        end
     end
 })
 
--- Inicializar a interface
+-- JumpPower 100
+Tab:AddButton({
+    Name = "JumpPower 100",
+    Callback = function()
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.JumpPower = 100
+        end
+    end
+})
+
+-- Abre a UI
 OrionLib:Init()
