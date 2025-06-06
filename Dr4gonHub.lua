@@ -1,6 +1,6 @@
 --[[
-  🐉 Dr4gonHub Premium - Versão Retangular
-  Recursos: Hitbox Expander, Aimbot, Controles de Janela
+  🐉 Dr4gonHub Premium - Versão Retangular Aprimorada
+  Recursos: Hitbox Expander com transparência ajustável, Aimbot, Controles de Janela
   Formato: Retangular | Estável | Xeno Executor
 ]]
 
@@ -62,6 +62,7 @@ ContentFrame.Size = UDim2.new(1, 0, 1, -35)
 ContentFrame.Position = UDim2.new(0, 0, 0, 35)
 ContentFrame.BackgroundTransparency = 1
 ContentFrame.ScrollBarThickness = 5
+ContentFrame.CanvasSize = UDim2.new(0, 0, 0, 650) -- Ajustado para mais conteúdo
 ContentFrame.Parent = MainFrame
 
 local UIListLayout = Instance.new("UIListLayout")
@@ -153,10 +154,17 @@ end)
 -- ===== HITBOX EXPANDER =====
 local hitboxEnabled = false
 local hitboxSize = 2
+local hitboxTransparency = 0.5 -- Novo: Controle de transparência
 local hitboxParts = {}
 
 local hitboxSlider = CreateSlider("Hitbox Size (1-5)", 1, 5, 2, function(value)
     hitboxSize = value
+    UpdateHitboxes()
+end)
+
+-- Novo: Slider para transparência da hitbox
+local transparencySlider = CreateSlider("Hitbox Transparency (0-1)", 0, 1, 0.5, function(value)
+    hitboxTransparency = value
     UpdateHitboxes()
 end)
 
@@ -178,7 +186,7 @@ local function UpdateHitboxes()
                 if part:IsA("BasePart") then
                     local hitbox = Instance.new("BoxHandleAdornment")
                     hitbox.Size = part.Size * hitboxSize
-                    hitbox.Transparency = 0.5
+                    hitbox.Transparency = hitboxTransparency -- Usando a variável de transparência
                     hitbox.Color3 = Color3.fromRGB(255, 0, 0)
                     hitbox.Adornee = part
                     hitbox.AlwaysOnTop = true
@@ -275,9 +283,65 @@ end)
 
 -- Fly
 local flying = false
+local flySpeed = 50
+local flySpeedSlider = CreateSlider("Fly Speed (1-100)", 1, 100, 50, function(value)
+    flySpeed = value
+end)
+
 CreateButton("Fly (Toggle - F)", function()
     flying = not flying
-    -- Implementação do fly hack (mesma da versão anterior)
+    local torso = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+    if not torso then return end
+    
+    if flying then
+        local bodyGyro = Instance.new("BodyGyro")
+        bodyGyro.P = 9e4
+        bodyGyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+        bodyGyro.cframe = torso.CFrame
+        bodyGyro.Parent = torso
+        
+        local bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.velocity = Vector3.new(0, 0, 0)
+        bodyVelocity.maxForce = Vector3.new(9e9, 9e9, 9e9)
+        bodyVelocity.Parent = torso
+        
+        local function fly()
+            if not flying or not Player.Character then return end
+            
+            local c = workspace.CurrentCamera.CFrame
+            local v = Vector3.new()
+            
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
+                v = v + c.LookVector * flySpeed
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.S) then
+                v = v - c.LookVector * flySpeed
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.A) then
+                v = v - c.RightVector * flySpeed
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.D) then
+                v = v + c.RightVector * flySpeed
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
+                v = v + Vector3.new(0, flySpeed, 0)
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftShift) then
+                v = v - Vector3.new(0, flySpeed, 0)
+            end
+            
+            torso.Velocity = v
+            bodyGyro.cframe = workspace.CurrentCamera.CFrame
+        end
+        
+        game:GetService("RunService").Heartbeat:Connect(fly)
+    else
+        for _, v in pairs(torso:GetChildren()) do
+            if v:IsA("BodyVelocity") or v:IsA("BodyGyro") then
+                v:Destroy()
+            end
+        end
+    end
 end)
 
 -- Teleport
@@ -291,7 +355,32 @@ end)
 local noclip = false
 CreateButton("Noclip (Toggle)", function()
     noclip = not noclip
-    -- Implementação do noclip (mesma da versão anterior)
+    
+    if Player.Character then
+        for _, part in pairs(Player.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = not noclip
+            end
+        end
+    end
+    
+    if noclip then
+        local noclipConnection
+        noclipConnection = game:GetService("RunService").Stepped:Connect(function()
+            if not noclip then
+                noclipConnection:Disconnect()
+                return
+            end
+            
+            if Player.Character then
+                for _, part in pairs(Player.Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+            end
+        end)
+    end
 end)
 
 -- Anti-AFK
@@ -310,6 +399,15 @@ Player.CharacterAdded:Connect(function(character)
     task.wait(0.5)
     walkSpeedSlider.SetValue(walkSpeed)
     jumpPowerSlider.SetValue(jumpPower)
+    
+    -- Restaurar noclip se estiver ativado
+    if noclip then
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
 end)
 
-print("🐉 Dr4gonHub Premium - Versão Retangular carregada com sucesso!")
+print("🐉 Dr4gonHub Premium - Versão Aprimorada carregada com sucesso!")
