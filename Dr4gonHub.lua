@@ -1,203 +1,186 @@
--- =============== FLUXLIB ADAPTADA (ORION-STYLE) ===============
-local Flux = {
-    Themes = {
-        Dark = {
-            Background = Color3.fromRGB(30, 30, 30),
-            Text = Color3.fromRGB(255, 255, 255),
-            Accent = Color3.fromRGB(0, 120, 215)
-        }
+--[[
+  Dr4gonHub Premium - Versão Temática Chinesa
+  Design: Dragões, lanternas vermelhas e elementos tradicionais
+  Funcionalidades: Utilitários + Hubs para jogos populares
+]]
+
+local Player = game:GetService("Players").LocalPlayer
+local Mouse = Player:GetMouse()
+
+-- =============== CONFIGURAÇÃO DO TEMA ===============
+local Theme = {
+    Colors = {
+        Primary = Color3.fromRGB(188, 10, 28),    -- Vermelho chinês
+        Secondary = Color3.fromRGB(255, 212, 96), -- Dourado imperial
+        Background = Color3.fromRGB(25, 20, 15),  -- Preto lacado
+        Text = Color3.fromRGB(255, 255, 255),
+        Accent = Color3.fromRGB(87, 20, 28)       -- Vermelho escuro
+    },
+    Images = {
+        Dragon = "rbxassetid://14204253922",      -- Dragão dourado
+        Lantern = "rbxassetid://14204257810",     -- Lanterna vermelha
+        Pattern = "rbxassetid://14204261233",     -- Padrão de seda
+        Seal = "rbxassetid://14204265000"         -- Selo imperial
+    },
+    Icons = {
+        Utility = "⚔️",  -- Espadas cruzadas
+        Blox = "🍜",     -- Macarrão da sorte
+        Brookhaven = "🏯", -- Pagode
+        Arsenal = "🎆",   -- Fogos de artifício
+        AdoptMe = "🐉",  -- Dragão
+        Settings = "🀄"  -- Peça de mahjong
+    },
+    Sounds = {
+        Open = "rbxassetid://9119658371",        -- Som de gongo
+        Click = "rbxassetid://9119659103"        -- Som de sino
     }
 }
+
+-- =============== BIBLIOTECA DE UI ===============
+local Flux = {
+    CurrentTheme = Theme,
+    Elements = {}
+}
+
+function Flux:CreateElement(type, properties)
+    local element = Instance.new(type)
+    for prop, value in pairs(properties) do
+        element[prop] = value
+    end
+    table.insert(self.Elements, element)
+    return element
+end
 
 function Flux:Window(name, description)
     local window = {
         Tabs = {},
-        CurrentTheme = self.Themes.Dark
+        UI = {}
     }
     
-    -- Cria uma nova aba (compatível com Orion)
-    function window:MakeTab(options)
-        local tab = {
-            Name = options.Name,
-            Icon = options.Icon or "",
-            Sections = {}
-        }
+    -- Cria a janela principal
+    function window:BuildUI()
+        -- ScreenGui principal
+        local screenGui = self:CreateElement("ScreenGui", {
+            Name = "DragonHubUI",
+            ResetOnSpawn = false,
+            Parent = Player:WaitForChild("PlayerGui")
+        })
         
-        -- Adiciona seção
-        function tab:AddSection(options)
-            table.insert(tab.Sections, {
-                Name = options.Name,
-                Content = {}
-            })
-            return #tab.Sections
-        end
+        -- Frame principal (biombo chinês)
+        local mainFrame = self:CreateElement("Frame", {
+            Size = UDim2.new(0.35, 0, 0.6, 0),
+            Position = UDim2.new(0.325, 0, 0.2, 0),
+            BackgroundColor3 = Theme.Colors.Background,
+            BackgroundTransparency = 0.1,
+            ClipsDescendants = true,
+            Parent = screenGui
+        })
         
-        -- Adiciona botão
-        function tab:AddButton(options)
-            local btn = {
-                Type = "Button",
-                Name = options.Name,
-                Callback = options.Callback or function() end
-            }
-            table.insert(tab.Sections[#tab.Sections].Content, btn)
-        end
+        -- Padrão de fundo
+        self:CreateElement("ImageLabel", {
+            Image = Theme.Images.Pattern,
+            ImageTransparency = 0.93,
+            ScaleType = Enum.ScaleType.Tile,
+            TileSize = UDim2.new(0, 100, 0, 100),
+            Size = UDim2.new(1, 0, 1, 0),
+            Parent = mainFrame
+        })
         
-        -- Adiciona toggle
-        function tab:AddToggle(options)
-            local toggle = {
-                Type = "Toggle",
-                Name = options.Name,
-                Default = options.Default or false,
-                Callback = options.Callback or function() end,
-                Value = options.Default
-            }
-            table.insert(tab.Sections[#tab.Sections].Content, toggle)
-        end
+        -- Cabeçalho com dragão
+        local header = self:CreateElement("Frame", {
+            Size = UDim2.new(1, 0, 0.12, 0),
+            BackgroundColor3 = Theme.Colors.Primary,
+            BorderSizePixel = 0,
+            Parent = mainFrame
+        })
         
-        -- Adiciona slider
-        function tab:AddSlider(options)
-            local slider = {
-                Type = "Slider",
-                Name = options.Name,
-                Min = options.Min or 0,
-                Max = options.Max or 100,
-                Default = options.Default or options.Min,
-                Callback = options.Callback or function() end,
-                Value = options.Default
-            }
-            table.insert(tab.Sections[#tab.Sections].Content, slider)
-        end
+        -- Dragão animado
+        local dragon = self:CreateElement("ImageLabel", {
+            Image = Theme.Images.Dragon,
+            Size = UDim2.new(0.15, 0, 1.5, 0),
+            Position = UDim2.new(0.02, 0, -0.25, 0),
+            AnchorPoint = Vector2.new(0, 0.5),
+            BackgroundTransparency = 1,
+            Parent = header
+        })
         
-        table.insert(window.Tabs, tab)
-        return tab
+        -- Animação do dragão
+        game:GetService("RunService").Heartbeat:Connect(function(dt)
+            dragon.Rotation = math.sin(os.clock() * 2) * 3
+        end)
+        
+        -- Título
+        self:CreateElement("TextLabel", {
+            Text = "龍王 "..name, -- 龍王 = "Rei Dragão"
+            Font = Enum.Font.GothamBold,
+            TextSize = 18,
+            TextColor3 = Theme.Colors.Secondary,
+            Size = UDim2.new(0.7, 0, 0.8, 0),
+            Position = UDim2.new(0.2, 0, 0.1, 0),
+            BackgroundTransparency = 1,
+            Parent = header
+        })
+        
+        -- Lanterna decorativa
+        self:CreateElement("ImageLabel", {
+            Image = Theme.Images.Lantern,
+            Size = UDim2.new(0.1, 0, 0.2, 0),
+            Position = UDim2.new(0.9, 0, -0.05, 0),
+            BackgroundTransparency = 1,
+            Parent = header
+        })
+        
+        -- [...] (Continua com outros elementos UI)
+        
+        window.UI.MainFrame = mainFrame
+        return mainFrame
     end
     
-    -- Renderiza a interface
-    function window:Init()
-        -- Cria a interface gráfica
-        local screenGui = Instance.new("ScreenGui")
-        screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-        
-        -- Implementação visual completa aqui...
-        -- (Esta parte seria extensa - estou mantendo focada na funcionalidade)
-        
-        print("[Dr4gonHub] Interface carregada com sucesso!")
-    end
+    -- [...] (Implementar MakeTab, AddSection, etc.)
     
     return window
 end
 
--- =============== DR4GONHUB IMPLEMENTAÇÃO ===============
-local Player = game:GetService("Players").LocalPlayer
-local Mouse = Player:GetMouse()
-
--- Cria a janela principal
-local Window = Flux:Window("Dr4gonHub", "Bem-vindo ao Dr4gonHub Premium!")
+-- =============== DR4GONHUB ===============
+local Window = Flux:Window("Dr4gonHub", "O Poder do Dragão")
+Window:BuildUI()
 
 -- =============== UTILITÁRIOS ===============
 local UtilityTab = Window:MakeTab({
-    Name = "⚙️ Utilitários",
-    Icon = "",
-    PremiumOnly = false
+    Name = Theme.Icons.Utility .. " Artes Marciais",
+    Icon = Theme.Images.Seal
 })
 
--- Seção de Movimento
-UtilityTab:AddSection({Name = "Controles de Movimento"})
+UtilityTab:AddSection({Name = "🏮 Controles do Guerreiro"})
 
-local WalkSpeedSlider = UtilityTab:AddSlider({
-    Name = "Velocidade (WalkSpeed)",
+-- Slider de velocidade com temática
+UtilityTab:AddSlider({
+    Name = "Velocidade do Dragão",
     Min = 16,
     Max = 200,
     Default = 16,
     Callback = function(value)
         pcall(function()
-            Player.Character:WaitForChild("Humanoid").WalkSpeed = value
+            local humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = value
+            end
         end)
     end
 })
 
-local JumpPowerSlider = UtilityTab:AddSlider({
-    Name = "Pulo (JumpPower)",
-    Min = 50,
-    Max = 200,
-    Default = 50,
-    Callback = function(value)
-        pcall(function()
-            Player.Character:WaitForChild("Humanoid").JumpPower = value
-        end)
+-- [...] (Implementar outras abas e funções)
+
+-- Efeito de inicialização
+task.spawn(function()
+    local sound = Instance.new("Sound")
+    sound.SoundId = Theme.Sounds.Open
+    sound.Parent = workspace
+    sound:Play()
+    
+    for i = 1, 5 do
+        -- Efeito visual de fogos
+        print("✨🎆✨ 龍王 Hub Iniciado ✨🎆✨")
+        task.wait(0.3)
     end
-})
-
--- Seção de Modificações
-UtilityTab:AddSection({Name = "Modificações Avançadas"})
-
-local flying = false
-UtilityTab:AddToggle({
-    Name = "Ativar Voo (Tecla F)",
-    Default = false,
-    Callback = function(value)
-        flying = value
-        if flying then
-            -- Implementação do voo
-        else
-            -- Desativar voo
-        end
-    end
-})
-
-UtilityTab:AddButton({
-    Name = "Anti-AFK",
-    Callback = function()
-        local vu = game:GetService("VirtualUser")
-        Player.Idled:Connect(function()
-            vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-            task.wait(1)
-            vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-        end)
-    end
-})
-
--- =============== BLOX FRUITS ===============
-local BloxTab = Window:MakeTab({
-    Name = "🍩 Blox Fruits",
-    Icon = "",
-    PremiumOnly = false
-})
-
-BloxTab:AddSection({Name = "Auto Farm"})
-BloxTab:AddToggle({
-    Name = "Auto Farm Nível",
-    Default = false,
-    Callback = function(value)
-        getgenv().autofarm = value
-        while autofarm do
-            -- Implementação do farm
-            task.wait()
-        end
-    end
-})
-
--- =============== BROOKHAVEN ===============
-local BrookhavenTab = Window:MakeTab({
-    Name = "🏠 Brookhaven",
-    Icon = "",
-    PremiumOnly = false
-})
-
-BrookhavenTab:AddSection({Name = "Modificações"})
-BrookhavenTab:AddButton({
-    Name = "Obter $1,000,000",
-    Callback = function()
-        -- Implementação
-    end
-})
-
--- =============== INICIALIZAÇÃO ===============
-Window:Init()
-
--- Atualiza sliders quando o personagem spawnar
-Player.CharacterAdded:Connect(function(char)
-    local humanoid = char:WaitForChild("Humanoid")
-    WalkSpeedSlider:Set(humanoid.WalkSpeed)
-    JumpPowerSlider:Set(humanoid.JumpPower)
 end)
