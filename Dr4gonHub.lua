@@ -1,78 +1,67 @@
 --[[
-  龙王 Dr4gonHub Premium - 完整版
-  Complete Chinese-themed hub with all features
+  Dr4gonHub Premium - Versão Estável
+  Funções: Fly, TP, Speed, Jump, Noclip, Anti-AFK
 ]]
 
+-- ========== CONFIGURAÇÃO INICIAL ==========
 local Player = game:GetService("Players").LocalPlayer
 local Mouse = Player:GetMouse()
 
--- ===== SAFE LIBRARY LOAD =====
+-- Carregamento seguro da biblioteca
 local OrionLib
-local loadAttempts = 0
-
-repeat
-    local success
-    success, OrionLib = pcall(function()
-        return loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
-    end)
+local function LoadLibrary()
+    local urls = {
+        "https://raw.githubusercontent.com/shlexware/Orion/main/source",
+        "https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"
+    }
     
-    if not success and loadAttempts < 2 then
-        loadAttempts += 1
-        OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+    for _, url in ipairs(urls) do
+        local success, lib = pcall(function()
+            return loadstring(game:HttpGet(url))()
+        end)
+        if success then
+            return lib
+        end
     end
-until OrionLib or loadAttempts >= 2
+    return nil
+end
 
+OrionLib = LoadLibrary()
 if not OrionLib then
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "加载错误",
-        Text = "无法加载UI库",
+        Title = "Erro",
+        Text = "Falha ao carregar a biblioteca",
         Duration = 10
     })
     return
 end
 
--- ===== CHINESE THEME =====
-local Theme = {
-    Colors = {
-        Primary = Color3.fromRGB(188, 10, 28),   -- Red
-        Secondary = Color3.fromRGB(255, 212, 96), -- Gold
-        Background = Color3.fromRGB(25, 20, 15)   -- Dark
-    },
-    Symbols = {
-        Dragon = "🐉",
-        Lantern = "🏮",
-        Sword = "⚔️",
-        YinYang = "☯"
-    }
-}
-
--- ===== MAIN WINDOW =====
+-- ========== INTERFACE PRINCIPAL ==========
 local Window = OrionLib:MakeWindow({
-    Name = "龙王 Hub",  -- Dragon King Hub
+    Name = "Dr4gonHub",
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "Dr4gonHubConfig",
     IntroEnabled = true,
-    IntroText = "欢迎使用 Dr4gonHub",  -- Welcome to Dr4gonHub
-    IntroIcon = "rbxassetid://14204253922"
-})
-
--- ===== UTILITIES TAB =====
-local UtilityTab = Window:MakeTab({
-    Name = Theme.Symbols.Sword .. " 实用工具",  -- Utilities
+    IntroText = "Dr4gonHub Carregado",
     Icon = "rbxassetid://0"
 })
 
--- Movement Section
-UtilityTab:AddSection({Name = Theme.Symbols.YinYang .. " 移动控制"})  -- Movement Controls
+-- ========== FUNÇÕES PRINCIPAIS ==========
+local UtilityTab = Window:MakeTab({
+    Name = "Utilitários",
+    Icon = "rbxassetid://0"
+})
 
--- WalkSpeed
+-- Seção de Movimento
+UtilityTab:AddSection({Name = "Movimento"})
+
+-- Controle de Velocidade
 UtilityTab:AddSlider({
-    Name = "移动速度 速度",  -- WalkSpeed
+    Name = "WalkSpeed",
     Min = 16,
     Max = 500,
     Default = 16,
-    Color = Theme.Colors.Primary,
     Callback = function(Value)
         pcall(function()
             local humanoid = Player.Character and Player.Character:FindFirstChildOfClass("Humanoid")
@@ -83,13 +72,12 @@ UtilityTab:AddSlider({
     end
 })
 
--- JumpPower
+-- Controle de Pulo
 UtilityTab:AddSlider({
-    Name = "跳跃力量 跳跃",  -- JumpPower
+    Name = "JumpPower",
     Min = 50,
     Max = 500,
     Default = 50,
-    Color = Theme.Colors.Secondary,
     Callback = function(Value)
         pcall(function()
             local humanoid = Player.Character and Player.Character:FindFirstChildOfClass("Humanoid")
@@ -100,11 +88,11 @@ UtilityTab:AddSlider({
     end
 })
 
--- Fly System
+-- Sistema de Voo
 local flyEnabled = false
-local flyConnection
+local flyConn
 UtilityTab:AddToggle({
-    Name = "飞行模式 (F)",  -- Fly Mode
+    Name = "Fly (Tecla F)",
     Default = false,
     Callback = function(Value)
         flyEnabled = Value
@@ -112,24 +100,31 @@ UtilityTab:AddToggle({
             local bodyVelocity = Instance.new("BodyVelocity")
             bodyVelocity.Velocity = Vector3.new(0, 0, 0)
             bodyVelocity.MaxForce = Vector3.new(0, 0, 0)
-            bodyVelocity.Parent = Player.Character.HumanoidRootPart
+            bodyVelocity.Parent = Player.Character:WaitForChild("HumanoidRootPart")
             
-            flyConnection = game:GetService("RunService").Heartbeat:Connect(function()
+            flyConn = game:GetService("RunService").Heartbeat:Connect(function()
                 if not flyEnabled or not Player.Character then
-                    if flyConnection then flyConnection:Disconnect() end
+                    if flyConn then flyConn:Disconnect() end
                     return
                 end
                 
                 local root = Player.Character.HumanoidRootPart
+                local cam = workspace.CurrentCamera.CFrame
+                
+                if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
+                    root.CFrame = root.CFrame + cam.LookVector
+                elseif game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.S) then
+                    root.CFrame = root.CFrame - cam.LookVector
+                end
+                
                 if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
                     root.CFrame = root.CFrame * CFrame.new(0, 1, 0)
                 elseif game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftControl) then
                     root.CFrame = root.CFrame * CFrame.new(0, -1, 0)
                 end
-                root.Velocity = Vector3.new(0, 0, 0)
             end)
-        elseif flyConnection then
-            flyConnection:Disconnect()
+        elseif flyConn then
+            flyConn:Disconnect()
             for _, v in pairs(Player.Character.HumanoidRootPart:GetChildren()) do
                 if v:IsA("BodyVelocity") then
                     v:Destroy()
@@ -139,15 +134,15 @@ UtilityTab:AddToggle({
     end
 })
 
--- Teleport
+-- Teleporte por Clique
 UtilityTab:AddButton({
-    Name = "传送至光标 (T)",  -- Teleport to Cursor
+    Name = "TP to Mouse (Tecla T)",
     Callback = function()
-        local inputConn
-        inputConn = game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+        local conn
+        conn = game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
             if input.KeyCode == Enum.KeyCode.T then
                 pcall(function()
-                    Player.Character.HumanoidRootPart.CFrame = CFrame.new(Mouse.Hit.Position + Vector3.new(0, 3, 0))
+                    Player.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(Mouse.Hit.Position + Vector3.new(0, 3, 0))
                 end)
             end
         end)
@@ -156,14 +151,14 @@ UtilityTab:AddButton({
 
 -- Noclip
 local noclipEnabled = false
-local noclipConnection
+local noclipConn
 UtilityTab:AddToggle({
-    Name = "穿墙模式",  -- Noclip
+    Name = "Noclip",
     Default = false,
     Callback = function(Value)
         noclipEnabled = Value
         if noclipEnabled then
-            noclipConnection = game:GetService("RunService").Stepped:Connect(function()
+            noclipConn = game:GetService("RunService").Stepped:Connect(function()
                 if not Player.Character then return end
                 for _, part in pairs(Player.Character:GetDescendants()) do
                     if part:IsA("BasePart") then
@@ -171,15 +166,15 @@ UtilityTab:AddToggle({
                     end
                 end
             end)
-        elseif noclipConnection then
-            noclipConnection:Disconnect()
+        elseif noclipConn then
+            noclipConn:Disconnect()
         end
     end
 })
 
 -- Anti-AFK
 UtilityTab:AddButton({
-    Name = "防挂机",  -- Anti-AFK
+    Name = "Anti-AFK",
     Callback = function()
         local vu = game:GetService("VirtualUser")
         Player.Idled:Connect(function()
@@ -190,16 +185,13 @@ UtilityTab:AddButton({
     end
 })
 
--- ===== INITIALIZATION =====
+-- ========== INICIALIZAÇÃO ==========
 OrionLib:Init()
 
--- Auto-update on respawn
+-- Atualizar ao respawnar
 Player.CharacterAdded:Connect(function(character)
     character:WaitForChild("Humanoid")
-    -- Reapply settings if needed
+    -- Reaplicar configurações se necessário
 end)
 
-print([[
-  龙王 Hub 已激活!
-  ▄︻デ══━✧ 龙的力量 ✧━══デ︻▄
-]])
+print("Dr4gonHub Iniciado com Sucesso!")
