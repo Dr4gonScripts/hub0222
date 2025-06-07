@@ -1,13 +1,10 @@
 --[[
-  🐉 Dr4gonHub Premium - Versão Aprimorada
+  🐉 Dr4gonHub Premium - Versão Completa
   Recursos:
-    - Abas organizadas (Main, Scripts, Fun, Executors)
-    - Divisórias com títulos em azul escuro
-    - Hitbox Expander com transparência ajustável
-    - Aimbot com visualização de nick
-    - Controles de Janela
-    - Seções para Grow a Garden e Blox Fruits
-    - Aba com links para executores
+    - 4 Abas organizadas (Main, Scripts, Fun, Executors)
+    - Divisórias por jogo (Grow a Garden, Blox Fruits, Muscles Legends, etc)
+    - Todos scripts solicitados organizados
+    - Sistema de hitbox, aimbot e utilitários
 ]]
 
 local Player = game:GetService("Players").LocalPlayer
@@ -19,7 +16,7 @@ ScreenGui.Name = "Dr4gonHubUI"
 ScreenGui.Parent = game:GetService("CoreGui")
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0.35, 0, 0.45, 0) -- Tamanho aumentado para mais conteúdo
+MainFrame.Size = UDim2.new(0.35, 0, 0.45, 0)
 MainFrame.Position = UDim2.new(0.05, 0, 0.25, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
 MainFrame.BorderSizePixel = 0
@@ -62,7 +59,7 @@ MinimizeButton.Font = Enum.Font.GothamBold
 MinimizeButton.TextSize = 16
 MinimizeButton.Parent = TitleBar
 
--- Barra de abas (agora com 4 abas)
+-- Barra de abas
 local TabBar = Instance.new("Frame")
 TabBar.Size = UDim2.new(1, 0, 0, 30)
 TabBar.Position = UDim2.new(0, 0, 0, 30)
@@ -70,15 +67,15 @@ TabBar.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
 TabBar.BorderSizePixel = 0
 TabBar.Parent = MainFrame
 
--- Configuração das abas (25% para cada)
+-- Configuração das abas
 local MainTab = Instance.new("TextButton")
 MainTab.Text = "Main"
 MainTab.Size = UDim2.new(0.25, 0, 1, 0)
 MainTab.Position = UDim2.new(0, 0, 0, 0)
-MainTab.BackgroundColor3 = Color3.fromRGB(50, 50, 70) -- Ativo inicialmente
+MainTab.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
 MainTab.TextColor3 = Color3.new(1, 1, 1)
 MainTab.Font = Enum.Font.Gotham
-MainTab.TextSize = 12 -- Reduzido para caber
+MainTab.TextSize = 12
 MainTab.Parent = TabBar
 
 local ScriptsTab = Instance.new("TextButton")
@@ -111,14 +108,14 @@ ExecutorsTab.Font = Enum.Font.Gotham
 ExecutorsTab.TextSize = 12
 ExecutorsTab.Parent = TabBar
 
--- Áreas de conteúdo para cada aba
+-- Áreas de conteúdo
 local MainContent = Instance.new("ScrollingFrame")
 MainContent.Name = "MainContent"
 MainContent.Size = UDim2.new(1, 0, 1, -65)
 MainContent.Position = UDim2.new(0, 0, 0, 65)
 MainContent.BackgroundTransparency = 1
 MainContent.ScrollBarThickness = 5
-MainContent.CanvasSize = UDim2.new(0, 0, 0, 700) -- Aumentado para mais conteúdo
+MainContent.CanvasSize = UDim2.new(0, 0, 0, 700)
 MainContent.Visible = true
 MainContent.Parent = MainFrame
 
@@ -128,7 +125,7 @@ ScriptsContent.Size = UDim2.new(1, 0, 1, -65)
 ScriptsContent.Position = UDim2.new(0, 0, 0, 65)
 ScriptsContent.BackgroundTransparency = 1
 ScriptsContent.ScrollBarThickness = 5
-ScriptsContent.CanvasSize = UDim2.new(0, 0, 0, 1000) -- Grande aumento para muitas opções
+ScriptsContent.CanvasSize = UDim2.new(0, 0, 0, 1200) -- Aumentado para mais scripts
 ScriptsContent.Visible = false
 ScriptsContent.Parent = MainFrame
 
@@ -152,7 +149,7 @@ ExecutorsContent.CanvasSize = UDim2.new(0, 0, 0, 300)
 ExecutorsContent.Visible = false
 ExecutorsContent.Parent = MainFrame
 
--- Layouts para cada área de conteúdo
+-- Layouts
 local UIListLayoutMain = Instance.new("UIListLayout")
 UIListLayoutMain.Padding = UDim.new(0, 5)
 UIListLayoutMain.Parent = MainContent
@@ -243,7 +240,7 @@ end
 local function CreateDivider(text, parent)
     local divider = Instance.new("TextLabel")
     divider.Text = " "..text.." "
-    divider.TextColor3 = Color3.fromRGB(0, 74, 173) -- Azul escuro forte
+    divider.TextColor3 = Color3.fromRGB(0, 74, 173)
     divider.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
     divider.Size = UDim2.new(0.9, 0, 0, 25)
     divider.Position = UDim2.new(0.05, 0, 0, 0)
@@ -319,7 +316,6 @@ MinimizeButton.MouseButton1Click:Connect(function()
     else
         MainFrame.Size = originalSize
         TabBar.Visible = true
-        -- Restaurar a aba visível
         if MainTab.BackgroundColor3 == Color3.fromRGB(50, 50, 70) then
             MainContent.Visible = true
         elseif ScriptsTab.BackgroundColor3 == Color3.fromRGB(50, 50, 70) then
@@ -598,6 +594,33 @@ CreateScriptButton("ESP Script",
     [[loadstring(game:HttpGet("https://pastebin.com/9Xs09T4Z"))()]], 
     ScriptsContent)
 
+CreateScriptButton("FPS Booster", 
+    [[_G.Settings = {
+        Players = {
+            ["Ignore Me"] = true,
+            ["Ignore Others"] = true
+        },
+        Meshes = {
+            Destroy = false,
+            LowDetail = true
+        },
+        Images = {
+            Invisible = true,
+            LowDetail = false,
+            Destroy = false,
+        },
+        ["No Particles"] = true,
+        ["No Camera Effects"] = true,
+        ["No Explosions"] = true,
+        ["No Clothes"] = true,
+        ["Low Water Graphics"] = true,
+        ["No Shadows"] = true,
+        ["Low Rendering"] = true,
+        ["Low Quality Parts"] = true
+    }
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/CasperFlyModz/discord.gg-rips/main/FPSBooster.lua"))()]], 
+    ScriptsContent)
+
 -- GROW A GARDEN
 CreateDivider("GROW A GARDEN", ScriptsContent)
 
@@ -613,19 +636,22 @@ CreateScriptButton("No Lag Hub",
     [[loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Loader/LoaderV1.lua"))()]], 
     ScriptsContent)
 
-CreateScriptButton("Speed Hub X", 
-    [[loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()]], 
-    ScriptsContent)
-
 -- BLOX FRUITS
 CreateDivider("BLOX FRUITS", ScriptsContent)
 
-CreateScriptButton("Blox Fruits Executor", 
+CreateScriptButton("W Azure", 
     [[loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/3b2169cf53bc6104dabe8e19562e5cc2.lua"))()]], 
     ScriptsContent)
 
-CreateScriptButton("Speed Hub X (BF)", 
+-- MUSCLES LEGENDS
+CreateDivider("MUSCLES LEGENDS", ScriptsContent)
+
+CreateScriptButton("Speed Hub X (ML)", 
     [[loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()]], 
+    ScriptsContent)
+
+CreateScriptButton("Muscles Legends Script", 
+    [[loadstring(game:HttpGet("https://raw.githubusercontent.com/TryharderKid/LurnaiNewUpdate/refs/heads/main/Script/Loader.lua"))()]], 
     ScriptsContent)
 
 -- BLUE LOCK RIVALS
@@ -633,6 +659,15 @@ CreateDivider("BLUE LOCK RIVALS", ScriptsContent)
 
 CreateScriptButton("Blue Lock Rivals", 
     [[loadstring(game:HttpGet("https://scripts.alchemyhub.xyz"))()]], 
+    ScriptsContent)
+
+-- GENERAL SCRIPTS
+CreateDivider("GERAL", ScriptsContent)
+
+
+
+CreateScriptButton("Speed Hub X (Geral)", 
+    [[loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()]], 
     ScriptsContent)
 
 -- ===== FUN TAB CONTENT =====
@@ -649,4 +684,4 @@ CreateLinkButton("Delta Executor", "https://deltaexploits.gg/android_dl", Execut
 
 CreateLinkButton("Krnl Executor", "https://www.mediafire.com/file/6fclnd4npho1ll1/krnl_release_2.675.715_2025.6.2_29.apk/file", ExecutorsContent)
 
-print("🐉 Dr4gonHub Premium - Versão Aprimorada carregada com sucesso!")
+print("🐉 Dr4gonHub Premium - Versão Completa carregada com sucesso!")
