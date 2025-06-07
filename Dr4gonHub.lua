@@ -1,12 +1,13 @@
 --[[
-  🐉 Dr4gonHub Premium - Versão Retangular Aprimorada
-  Recursos: 
-    - Abas para organização
+  🐉 Dr4gonHub Premium - Versão Aprimorada
+  Recursos:
+    - Abas organizadas (Main, Scripts, Fun, Executors)
+    - Divisórias com títulos em azul escuro
     - Hitbox Expander com transparência ajustável
     - Aimbot com visualização de nick
     - Controles de Janela
-    - Seção para scripts externos
-  Formato: Retangular | Estável | Xeno Executor
+    - Seções para Grow a Garden e Blox Fruits
+    - Aba com links para executores
 ]]
 
 local Player = game:GetService("Players").LocalPlayer
@@ -18,8 +19,8 @@ ScreenGui.Name = "Dr4gonHubUI"
 ScreenGui.Parent = game:GetService("CoreGui")
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0.3, 0, 0.4, 0)
-MainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
+MainFrame.Size = UDim2.new(0.35, 0, 0.45, 0) -- Tamanho aumentado para mais conteúdo
+MainFrame.Position = UDim2.new(0.05, 0, 0.25, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
@@ -61,7 +62,7 @@ MinimizeButton.Font = Enum.Font.GothamBold
 MinimizeButton.TextSize = 16
 MinimizeButton.Parent = TitleBar
 
--- Barra de abas
+-- Barra de abas (agora com 4 abas)
 local TabBar = Instance.new("Frame")
 TabBar.Size = UDim2.new(1, 0, 0, 30)
 TabBar.Position = UDim2.new(0, 0, 0, 30)
@@ -69,44 +70,55 @@ TabBar.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
 TabBar.BorderSizePixel = 0
 TabBar.Parent = MainFrame
 
+-- Configuração das abas (25% para cada)
 local MainTab = Instance.new("TextButton")
 MainTab.Text = "Main"
-MainTab.Size = UDim2.new(0.33, 0, 1, 0)
+MainTab.Size = UDim2.new(0.25, 0, 1, 0)
 MainTab.Position = UDim2.new(0, 0, 0, 0)
-MainTab.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+MainTab.BackgroundColor3 = Color3.fromRGB(50, 50, 70) -- Ativo inicialmente
 MainTab.TextColor3 = Color3.new(1, 1, 1)
 MainTab.Font = Enum.Font.Gotham
-MainTab.TextSize = 14
+MainTab.TextSize = 12 -- Reduzido para caber
 MainTab.Parent = TabBar
 
 local ScriptsTab = Instance.new("TextButton")
 ScriptsTab.Text = "Scripts"
-ScriptsTab.Size = UDim2.new(0.34, 0, 1, 0)
-ScriptsTab.Position = UDim2.new(0.33, 0, 0, 0)
+ScriptsTab.Size = UDim2.new(0.25, 0, 1, 0)
+ScriptsTab.Position = UDim2.new(0.25, 0, 0, 0)
 ScriptsTab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
 ScriptsTab.TextColor3 = Color3.new(1, 1, 1)
 ScriptsTab.Font = Enum.Font.Gotham
-ScriptsTab.TextSize = 14
+ScriptsTab.TextSize = 12
 ScriptsTab.Parent = TabBar
 
 local FunTab = Instance.new("TextButton")
 FunTab.Text = "Fun"
-FunTab.Size = UDim2.new(0.33, 0, 1, 0)
-FunTab.Position = UDim2.new(0.67, 0, 0, 0)
+FunTab.Size = UDim2.new(0.25, 0, 1, 0)
+FunTab.Position = UDim2.new(0.5, 0, 0, 0)
 FunTab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
 FunTab.TextColor3 = Color3.new(1, 1, 1)
 FunTab.Font = Enum.Font.Gotham
-FunTab.TextSize = 14
+FunTab.TextSize = 12
 FunTab.Parent = TabBar
 
--- Área de conteúdo
+local ExecutorsTab = Instance.new("TextButton")
+ExecutorsTab.Text = "Executors"
+ExecutorsTab.Size = UDim2.new(0.25, 0, 1, 0)
+ExecutorsTab.Position = UDim2.new(0.75, 0, 0, 0)
+ExecutorsTab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+ExecutorsTab.TextColor3 = Color3.new(1, 1, 1)
+ExecutorsTab.Font = Enum.Font.Gotham
+ExecutorsTab.TextSize = 12
+ExecutorsTab.Parent = TabBar
+
+-- Áreas de conteúdo para cada aba
 local MainContent = Instance.new("ScrollingFrame")
 MainContent.Name = "MainContent"
 MainContent.Size = UDim2.new(1, 0, 1, -65)
 MainContent.Position = UDim2.new(0, 0, 0, 65)
 MainContent.BackgroundTransparency = 1
 MainContent.ScrollBarThickness = 5
-MainContent.CanvasSize = UDim2.new(0, 0, 0, 650)
+MainContent.CanvasSize = UDim2.new(0, 0, 0, 700) -- Aumentado para mais conteúdo
 MainContent.Visible = true
 MainContent.Parent = MainFrame
 
@@ -116,7 +128,7 @@ ScriptsContent.Size = UDim2.new(1, 0, 1, -65)
 ScriptsContent.Position = UDim2.new(0, 0, 0, 65)
 ScriptsContent.BackgroundTransparency = 1
 ScriptsContent.ScrollBarThickness = 5
-ScriptsContent.CanvasSize = UDim2.new(0, 0, 0, 650)
+ScriptsContent.CanvasSize = UDim2.new(0, 0, 0, 1000) -- Grande aumento para muitas opções
 ScriptsContent.Visible = false
 ScriptsContent.Parent = MainFrame
 
@@ -126,10 +138,21 @@ FunContent.Size = UDim2.new(1, 0, 1, -65)
 FunContent.Position = UDim2.new(0, 0, 0, 65)
 FunContent.BackgroundTransparency = 1
 FunContent.ScrollBarThickness = 5
-FunContent.CanvasSize = UDim2.new(0, 0, 0, 650)
+FunContent.CanvasSize = UDim2.new(0, 0, 0, 700)
 FunContent.Visible = false
 FunContent.Parent = MainFrame
 
+local ExecutorsContent = Instance.new("ScrollingFrame")
+ExecutorsContent.Name = "ExecutorsContent"
+ExecutorsContent.Size = UDim2.new(1, 0, 1, -65)
+ExecutorsContent.Position = UDim2.new(0, 0, 0, 65)
+ExecutorsContent.BackgroundTransparency = 1
+ExecutorsContent.ScrollBarThickness = 5
+ExecutorsContent.CanvasSize = UDim2.new(0, 0, 0, 300)
+ExecutorsContent.Visible = false
+ExecutorsContent.Parent = MainFrame
+
+-- Layouts para cada área de conteúdo
 local UIListLayoutMain = Instance.new("UIListLayout")
 UIListLayoutMain.Padding = UDim.new(0, 5)
 UIListLayoutMain.Parent = MainContent
@@ -142,7 +165,11 @@ local UIListLayoutFun = Instance.new("UIListLayout")
 UIListLayoutFun.Padding = UDim.new(0, 5)
 UIListLayoutFun.Parent = FunContent
 
--- ===== FUNÇÕES DE CONTROLE =====
+local UIListLayoutExecutors = Instance.new("UIListLayout")
+UIListLayoutExecutors.Padding = UDim.new(0, 5)
+UIListLayoutExecutors.Parent = ExecutorsContent
+
+-- ===== FUNÇÕES AUXILIARES =====
 local function CreateButton(name, callback, parent)
     local button = Instance.new("TextButton")
     button.Text = name
@@ -154,27 +181,18 @@ local function CreateButton(name, callback, parent)
     button.TextSize = 14
     button.Parent = parent
     
-    -- Variável de estado e cor inicial (OFF)
     local isActive = false
-    button.BackgroundColor3 = Color3.fromRGB(20, 50, 90) -- Azul escuro quando desligado
+    button.BackgroundColor3 = Color3.fromRGB(20, 50, 90)
     
     button.MouseButton1Click:Connect(function()
         isActive = not isActive
-        if isActive then
-            button.BackgroundColor3 = Color3.fromRGB(50, 150, 255) -- Azul claro quando ligado
-        else
-            button.BackgroundColor3 = Color3.fromRGB(20, 50, 90) -- Azul escuro quando desligado
-        end
+        button.BackgroundColor3 = isActive and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(20, 50, 90)
         pcall(callback, isActive)
     end)
     
     return button, function(state)
         isActive = state
-        if isActive then
-            button.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
-        else
-            button.BackgroundColor3 = Color3.fromRGB(20, 50, 90)
-        end
+        button.BackgroundColor3 = isActive and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(20, 50, 90)
     end
 end
 
@@ -222,6 +240,65 @@ local function CreateSlider(name, min, max, default, callback, parent)
     }
 end
 
+local function CreateDivider(text, parent)
+    local divider = Instance.new("TextLabel")
+    divider.Text = " "..text.." "
+    divider.TextColor3 = Color3.fromRGB(0, 74, 173) -- Azul escuro forte
+    divider.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    divider.Size = UDim2.new(0.9, 0, 0, 25)
+    divider.Position = UDim2.new(0.05, 0, 0, 0)
+    divider.Font = Enum.Font.GothamBold
+    divider.TextSize = 14
+    divider.TextXAlignment = Enum.TextXAlignment.Center
+    divider.BorderSizePixel = 1
+    divider.BorderColor3 = Color3.fromRGB(50, 50, 70)
+    divider.Parent = parent
+    
+    return divider
+end
+
+local function CreateScriptButton(name, script, parent)
+    local button = Instance.new("TextButton")
+    button.Text = name
+    button.Size = UDim2.new(0.9, 0, 0, 40)
+    button.Position = UDim2.new(0.05, 0, 0, 0)
+    button.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Font = Enum.Font.Gotham
+    button.TextSize = 14
+    button.Parent = parent
+    
+    button.MouseButton1Click:Connect(function()
+        loadstring(script)()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Dr4gonHub",
+            Text = name .. " carregado!",
+            Duration = 3
+        })
+    end)
+end
+
+local function CreateLinkButton(name, url, parent)
+    local button = Instance.new("TextButton")
+    button.Text = name
+    button.Size = UDim2.new(0.9, 0, 0, 40)
+    button.Position = UDim2.new(0.05, 0, 0, 0)
+    button.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Font = Enum.Font.Gotham
+    button.TextSize = 14
+    button.Parent = parent
+    
+    button.MouseButton1Click:Connect(function()
+        setclipboard(url)
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Dr4gonHub",
+            Text = "Link copiado para a área de transferência!",
+            Duration = 3
+        })
+    end)
+end
+
 -- ===== CONTROLES DE JANELA =====
 local minimized = false
 local originalSize = MainFrame.Size
@@ -233,11 +310,12 @@ end)
 MinimizeButton.MouseButton1Click:Connect(function()
     minimized = not minimized
     if minimized then
-        MainFrame.Size = UDim2.new(0.3, 0, 0, 30)
+        MainFrame.Size = UDim2.new(0.35, 0, 0, 30)
         TabBar.Visible = false
         MainContent.Visible = false
         ScriptsContent.Visible = false
         FunContent.Visible = false
+        ExecutorsContent.Visible = false
     else
         MainFrame.Size = originalSize
         TabBar.Visible = true
@@ -246,44 +324,34 @@ MinimizeButton.MouseButton1Click:Connect(function()
             MainContent.Visible = true
         elseif ScriptsTab.BackgroundColor3 == Color3.fromRGB(50, 50, 70) then
             ScriptsContent.Visible = true
-        else
+        elseif FunTab.BackgroundColor3 == Color3.fromRGB(50, 50, 70) then
             FunContent.Visible = true
+        else
+            ExecutorsContent.Visible = true
         end
     end
 end)
 
 -- Controle de abas
-MainTab.MouseButton1Click:Connect(function()
-    MainTab.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-    ScriptsTab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-    FunTab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+local function SwitchTab(selectedTab)
+    MainTab.BackgroundColor3 = (selectedTab == MainTab) and Color3.fromRGB(50, 50, 70) or Color3.fromRGB(40, 40, 50)
+    ScriptsTab.BackgroundColor3 = (selectedTab == ScriptsTab) and Color3.fromRGB(50, 50, 70) or Color3.fromRGB(40, 40, 50)
+    FunTab.BackgroundColor3 = (selectedTab == FunTab) and Color3.fromRGB(50, 50, 70) or Color3.fromRGB(40, 40, 50)
+    ExecutorsTab.BackgroundColor3 = (selectedTab == ExecutorsTab) and Color3.fromRGB(50, 50, 70) or Color3.fromRGB(40, 40, 50)
     
-    MainContent.Visible = true
-    ScriptsContent.Visible = false
-    FunContent.Visible = false
-end)
+    MainContent.Visible = (selectedTab == MainTab)
+    ScriptsContent.Visible = (selectedTab == ScriptsTab)
+    FunContent.Visible = (selectedTab == FunTab)
+    ExecutorsContent.Visible = (selectedTab == ExecutorsTab)
+end
 
-ScriptsTab.MouseButton1Click:Connect(function()
-    MainTab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-    ScriptsTab.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-    FunTab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-    
-    MainContent.Visible = false
-    ScriptsContent.Visible = true
-    FunContent.Visible = false
-end)
+MainTab.MouseButton1Click:Connect(function() SwitchTab(MainTab) end)
+ScriptsTab.MouseButton1Click:Connect(function() SwitchTab(ScriptsTab) end)
+FunTab.MouseButton1Click:Connect(function() SwitchTab(FunTab) end)
+ExecutorsTab.MouseButton1Click:Connect(function() SwitchTab(ExecutorsTab) end)
 
-FunTab.MouseButton1Click:Connect(function()
-    MainTab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-    ScriptsTab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-    FunTab.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-    
-    MainContent.Visible = false
-    ScriptsContent.Visible = false
-    FunContent.Visible = true
-end)
-
--- ===== HITBOX EXPANDER (Main Tab) =====
+-- ===== MAIN TAB CONTENT =====
+-- Hitbox Expander
 local hitboxEnabled = false
 local hitboxSize = 2
 local hitboxTransparency = 0.5
@@ -333,14 +401,13 @@ local hitboxButton, setHitboxState = CreateButton("Hitbox Expander", function(st
     UpdateHitboxes()
 end, MainContent)
 
--- ===== AIMBOT (Main Tab) =====
+-- Aimbot
 local aimbotEnabled = false
 local aimbotFOV = 100
 local aimbotTeamCheck = true
 local currentTarget = nil
 local targetView = nil
 
--- Criação do texto para visualização do alvo
 local function CreateTargetView()
     if targetView then targetView:Destroy() end
     
@@ -379,9 +446,9 @@ end, MainContent)
 local teamCheckButton, setTeamCheckState = CreateButton("Team Check", function(state)
     aimbotTeamCheck = state
 end, MainContent)
-setTeamCheckState(true) -- Inicialmente ligado
+setTeamCheckState(true)
 
--- Função principal do aimbot
+-- Aimbot Logic
 game:GetService("RunService").RenderStepped:Connect(function()
     if aimbotEnabled and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
         local closestPlayer = nil
@@ -389,10 +456,8 @@ game:GetService("RunService").RenderStepped:Connect(function()
         
         for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
             if player ~= Player and player.Character then
-                if aimbotTeamCheck then
-                    if Player.Team and player.Team and Player.Team == player.Team then
-                        continue
-                    end
+                if aimbotTeamCheck and Player.Team and player.Team and Player.Team == player.Team then
+                    continue
                 end
                 
                 local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
@@ -426,8 +491,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
     end
 end)
 
--- ===== FUNÇÕES BÁSICAS (Main Tab) =====
--- WalkSpeed
+-- Basic Functions
 local walkSpeed = 16
 local walkSpeedSlider = CreateSlider("WalkSpeed (0-500)", 0, 500, 16, function(value)
     walkSpeed = value
@@ -436,7 +500,6 @@ local walkSpeedSlider = CreateSlider("WalkSpeed (0-500)", 0, 500, 16, function(v
     end
 end, MainContent)
 
--- JumpPower
 local jumpPower = 50
 local jumpPowerSlider = CreateSlider("JumpPower (0-500)", 0, 500, 50, function(value)
     jumpPower = value
@@ -445,14 +508,12 @@ local jumpPowerSlider = CreateSlider("JumpPower (0-500)", 0, 500, 50, function(v
     end
 end, MainContent)
 
--- Fly (usando o script universal)
+-- Fly
 local flyButton, setFlyState = CreateButton("Fly (Universal)", function(state)
     if state then
         loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Gui-Fly-v3-37111"))()
-        -- Não podemos desligar o fly externo, então mantemos o botão ativado
         setFlyState(true)
     else
-        -- Aviso que não podemos desativar o fly do script externo
         game:GetService("StarterGui"):SetCore("SendNotification", {
             Title = "Dr4gonHub",
             Text = "Use o comando do script de fly para desativar",
@@ -505,7 +566,7 @@ local antiAFKButton, setAntiAFKState = CreateButton("Anti-AFK", function(state)
     end
 end, MainContent)
 
--- Atualizar ao respawn
+-- Respawn Handling
 Player.CharacterAdded:Connect(function(character)
     character:WaitForChild("Humanoid")
     task.wait(0.5)
@@ -521,49 +582,71 @@ Player.CharacterAdded:Connect(function(character)
     end
 end)
 
--- ===== SCRIPTS EXTERNOS (Scripts Tab) =====
-local function CreateScriptButton(name, script, parent)
-    local button = Instance.new("TextButton")
-    button.Text = name
-    button.Size = UDim2.new(0.9, 0, 0, 40)
-    button.Position = UDim2.new(0.05, 0, 0, 0)
-    button.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.Font = Enum.Font.Gotham
-    button.TextSize = 14
-    button.Parent = parent
-    
-    button.MouseButton1Click:Connect(function()
-        loadstring(script)()
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "Dr4gonHub",
-            Text = name .. " carregado!",
-            Duration = 3
-        })
-    end)
-end
+-- ===== SCRIPTS TAB CONTENT =====
+-- UTILITIES
+CreateDivider("UTILIDADES", ScriptsContent)
 
--- View Script
 CreateScriptButton("View Script", 
     [[loadstring(game:HttpGetAsync('https://pastefy.app/mJ8vapGJ/raw'))()execute("https://scriptprotector-d6fe7-default-rtdb.firebaseio.com/", "B4SraukVMMsjcGG2rAzqm2m0AkO5mY4bt3PkeNoo", "Script9")]], 
     ScriptsContent)
 
--- Keyboard Script
 CreateScriptButton("Keyboard Script", 
     [[loadstring(game:HttpGet("https://raw.githubusercontent.com/Xxtan31/Ata/main/deltakeyboardcrack.txt", true))()]], 
     ScriptsContent)
 
--- ESP Script
 CreateScriptButton("ESP Script", 
     [[loadstring(game:HttpGet("https://pastebin.com/9Xs09T4Z"))()]], 
     ScriptsContent)
 
--- ===== SCRIPTS DE DIVERSÃO (Fun Tab) =====
--- Troll Script
+-- GROW A GARDEN
+CreateDivider("GROW A GARDEN", ScriptsContent)
+
+CreateScriptButton("Garden Dupe V2", 
+    [[loadstring(game:HttpGet("https://gist.githubusercontent.com/NefariousScript/e79b2a8b4511938a6f236fca3a3803bf/raw/35b0daaf472754431bb18f2f3bd82c902a43f2e3/Dupe-SpawnV2"))()]], 
+    ScriptsContent)
+
+CreateScriptButton("Garden Script 2", 
+    [[loadstring(game:HttpGet("https://paste.ee/r/6JTPRNMa"))()]], 
+    ScriptsContent)
+
+CreateScriptButton("No Lag Hub", 
+    [[loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Loader/LoaderV1.lua"))()]], 
+    ScriptsContent)
+
+CreateScriptButton("Speed Hub X", 
+    [[loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()]], 
+    ScriptsContent)
+
+-- BLOX FRUITS
+CreateDivider("BLOX FRUITS", ScriptsContent)
+
+CreateScriptButton("Blox Fruits Executor", 
+    [[loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/3b2169cf53bc6104dabe8e19562e5cc2.lua"))()]], 
+    ScriptsContent)
+
+CreateScriptButton("Speed Hub X (BF)", 
+    [[loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()]], 
+    ScriptsContent)
+
+-- BLUE LOCK RIVALS
+CreateDivider("BLUE LOCK RIVALS", ScriptsContent)
+
+CreateScriptButton("Blue Lock Rivals", 
+    [[loadstring(game:HttpGet("https://scripts.alchemyhub.xyz"))()]], 
+    ScriptsContent)
+
+-- ===== FUN TAB CONTENT =====
+CreateDivider("DIVERSÃO", FunContent)
+
 CreateScriptButton("Ragdoll Troll Script", 
     [[loadstring(game:HttpGet("https://raw.githubusercontent.com/blackheartedcurse/punkz-Scripts/main/SolaraVersionRagdoll.lua"))()]], 
     FunContent)
 
--- Outros scripts divertidos podem ser adicionados aqui
+-- ===== EXECUTORS TAB CONTENT =====
+CreateDivider("EXECUTORES", ExecutorsContent)
+
+CreateLinkButton("Delta Executor", "https://deltaexploits.gg/android_dl", ExecutorsContent)
+
+CreateLinkButton("Krnl Executor", "https://www.mediafire.com/file/6fclnd4npho1ll1/krnl_release_2.675.715_2025.6.2_29.apk/file", ExecutorsContent)
 
 print("🐉 Dr4gonHub Premium - Versão Aprimorada carregada com sucesso!")
