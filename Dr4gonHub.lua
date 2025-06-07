@@ -1,14 +1,13 @@
 --[[
-  🐉 Dr4gonHub Premium - Versão Completa
-  Recursos: 
-  - Hitbox Expander com transparência ajustável
-  - Aimbot com FOV e team check
-  - Fly hack melhorado
-  - Teleporte para mouse/clique
-  - View Player (espectador)
-  - Noclip
-  - Anti-AFK
-  - Controles de WalkSpeed/JumpPower
+  🐉 Dr4gonHub Premium - Versão Final
+  Recursos:
+  - Hitbox Expander (ON/OFF)
+  - Aimbot (ON/OFF)
+  - Fly (ON/OFF)
+  - View Player (ON/OFF)
+  - Teleport (ON/OFF)
+  - Noclip (ON/OFF)
+  - Anti-AFK (ON/OFF)
 ]]
 
 local Player = game:GetService("Players").LocalPlayer
@@ -76,7 +75,7 @@ local UIListLayout = Instance.new("UIListLayout")
 UIListLayout.Padding = UDim.new(0, 5)
 UIListLayout.Parent = ContentFrame
 
--- ===== FUNÇÕES DE CONTROLE =====
+-- ===== FUNÇÃO PARA CRIAR BOTÕES TOGGLE (ON/OFF) =====
 local function CreateToggleButton(name, defaultState, callback)
     local button = Instance.new("TextButton")
     button.Text = name .. (defaultState and " [ON]" or " [OFF]")
@@ -109,70 +108,176 @@ local function CreateToggleButton(name, defaultState, callback)
     }
 end
 
-local function CreateSlider(name, min, max, default, callback)
-    local sliderFrame = Instance.new("Frame")
-    sliderFrame.Size = UDim2.new(0.9, 0, 0, 60)
-    sliderFrame.BackgroundTransparency = 1
-    sliderFrame.Parent = ContentFrame
-    
-    local label = Instance.new("TextLabel")
-    label.Text = name
-    label.Size = UDim2.new(1, 0, 0, 20)
-    label.TextColor3 = Color3.fromRGB(200, 200, 200)
-    label.BackgroundTransparency = 1
-    label.Font = Enum.Font.Gotham
-    label.TextSize = 14
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Parent = sliderFrame
-    
-    local textBox = Instance.new("TextBox")
-    textBox.Text = tostring(default)
-    textBox.Size = UDim2.new(1, 0, 0, 30)
-    textBox.Position = UDim2.new(0, 0, 0, 25)
-    textBox.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
-    textBox.TextColor3 = Color3.new(1, 1, 1)
-    textBox.Font = Enum.Font.Gotham
-    textBox.TextSize = 14
-    textBox.Parent = sliderFrame
-    
-    local function updateValue(value)
-        local num = tonumber(value) or default
-        num = math.clamp(num, min, max)
-        textBox.Text = tostring(num)
-        pcall(callback, num)
-    end
-    
-    textBox.FocusLost:Connect(function()
-        updateValue(textBox.Text)
-    end)
-    
-    return {
-        SetValue = function(value)
-            updateValue(value)
+-- ===== HITBOX EXPANDER (ON/OFF) =====
+local hitboxSize = 2
+local hitboxTransparency = 0.5
+local hitboxParts = {}
+
+local hitboxSlider = CreateSlider("Hitbox Size (1-5)", 1, 5, 2, function(value)
+    hitboxSize = value
+    UpdateHitboxes()
+end)
+
+local transparencySlider = CreateSlider("Hitbox Transparency (0-1)", 0, 1, 0.5, function(value)
+    hitboxTransparency = value
+    UpdateHitboxes()
+end)
+
+local hitboxToggle = CreateToggleButton("Hitbox", false, function(state)
+    UpdateHitboxes()
+end)
+
+local function UpdateHitboxes()
+    -- Limpar hitboxes antigas
+    for _, part in pairs(hitboxParts) do
+        if part:IsA("BasePart") then
+            part:Destroy()
         end
-    }
+    end
+    hitboxParts = {}
+
+    if not hitboxToggle.GetState() then return end
+
+    -- Criar novas hitboxes
+    for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+        if player ~= Player and player.Character then
+            for _, part in ipairs(player.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    local hitbox = Instance.new("BoxHandleAdornment")
+                    hitbox.Size = part.Size * hitboxSize
+                    hitbox.Transparency = hitboxTransparency
+                    hitbox.Color3 = Color3.fromRGB(255, 0, 0)
+                    hitbox.Adornee = part
+                    hitbox.AlwaysOnTop = true
+                    hitbox.ZIndex = 10
+                    hitbox.Parent = part
+                    table.insert(hitboxParts, hitbox)
+                end
+            end
+        end
+    end
 end
 
--- ===== CONTROLES DE JANELA =====
-local minimized = false
-local originalSize = MainFrame.Size
+-- ===== AIMBOT (ON/OFF) =====
+local aimbotFOV = 100
+local aimbotTeamCheck = true
 
-CloseButton.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
+local aimbotFOVSlider = CreateSlider("Aimbot FOV (10-200)", 10, 200, 100, function(value)
+    aimbotFOV = value
 end)
 
-MinimizeButton.MouseButton1Click:Connect(function()
-    minimized = not minimized
-    if minimized then
-        MainFrame.Size = UDim2.new(0.25, 0, 0, 30)
-        ContentFrame.Visible = false
-    else
-        MainFrame.Size = originalSize
-        ContentFrame.Visible = true
+local aimbotToggle = CreateToggleButton("Aimbot", false, function(state)
+    -- O estado é armazenado automaticamente
+end)
+
+local teamCheckToggle = CreateToggleButton("Team Check", true, function(state)
+    aimbotTeamCheck = state
+end)
+
+-- Função principal do aimbot
+game:GetService("RunService").RenderStepped:Connect(function()
+    if aimbotToggle.GetState() and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+        local closestPlayer = nil
+        local closestDistance = aimbotFOV
+        
+        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+            if player ~= Player and player.Character then
+                if aimbotTeamCheck and Player.Team and player.Team and Player.Team == player.Team then
+                    continue
+                end
+                
+                local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
+                if rootPart then
+                    local screenPoint = workspace.CurrentCamera:WorldToViewportPoint(rootPart.Position)
+                    local mousePos = game:GetService("UserInputService"):GetMouseLocation()
+                    local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - Vector2.new(mousePos.X, mousePos.Y)).Magnitude
+                    
+                    if distance < closestDistance then
+                        closestDistance = distance
+                        closestPlayer = player
+                    end
+                end
+            end
+        end
+        
+        if closestPlayer and closestPlayer.Character then
+            local target = closestPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if target then
+                workspace.CurrentCamera.CFrame = CFrame.lookAt(
+                    workspace.CurrentCamera.CFrame.Position,
+                    target.Position
+                )
+            end
+        end
     end
 end)
 
--- ===== SISTEMA DE VIEW PLAYER =====
+-- ===== FLY (ON/OFF) =====
+local flySpeed = 50
+local flySpeedSlider = CreateSlider("Fly Speed (1-100)", 1, 100, 50, function(value)
+    flySpeed = value
+end)
+
+local flyBodyGyro, flyBodyVelocity
+local flyKeys = {
+    [Enum.KeyCode.W] = Vector3.new(0, 0, -1),
+    [Enum.KeyCode.S] = Vector3.new(0, 0, 1),
+    [Enum.KeyCode.A] = Vector3.new(-1, 0, 0),
+    [Enum.KeyCode.D] = Vector3.new(1, 0, 0),
+    [Enum.KeyCode.Space] = Vector3.new(0, 1, 0),
+    [Enum.KeyCode.LeftShift] = Vector3.new(0, -1, 0)
+}
+
+local flyToggle = CreateToggleButton("Fly (WASD+Space/Shift)", false, function(state)
+    local torso = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+    if not torso then return end
+    
+    if state then
+        -- Ativar fly
+        flyBodyGyro = Instance.new("BodyGyro")
+        flyBodyGyro.P = 9e4
+        flyBodyGyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+        flyBodyGyro.cframe = torso.CFrame
+        flyBodyGyro.Parent = torso
+        
+        flyBodyVelocity = Instance.new("BodyVelocity")
+        flyBodyVelocity.velocity = Vector3.new(0, 0, 0)
+        flyBodyVelocity.maxForce = Vector3.new(9e9, 9e9, 9e9)
+        flyBodyVelocity.Parent = torso
+        
+        local flyConnection
+        flyConnection = game:GetService("RunService").Heartbeat:Connect(function()
+            if not flyToggle.GetState() or not Player.Character then
+                flyConnection:Disconnect()
+                return
+            end
+            
+            local torso = Player.Character:FindFirstChild("HumanoidRootPart")
+            if not torso then return end
+            
+            local camera = workspace.CurrentCamera
+            local moveDirection = Vector3.new()
+            
+            for key, direction in pairs(flyKeys) do
+                if game:GetService("UserInputService"):IsKeyDown(key) then
+                    local cameraSpaceDirection = camera.CFrame:VectorToWorldSpace(direction)
+                    moveDirection = moveDirection + cameraSpaceDirection * flySpeed
+                end
+            end
+            
+            torso.Velocity = moveDirection
+            if flyBodyGyro then
+                flyBodyGyro.cframe = camera.CFrame
+            end
+        end)
+    else
+        -- Desativar fly
+        if flyBodyGyro then flyBodyGyro:Destroy() end
+        if flyBodyVelocity then flyBodyVelocity:Destroy() end
+    end
+end)
+
+-- ===== VIEW PLAYER (ON/OFF) =====
 local viewPlayerFrame = Instance.new("Frame")
 viewPlayerFrame.Size = UDim2.new(0.9, 0, 0, 80)
 viewPlayerFrame.Position = UDim2.new(0.05, 0, 0, 0)
@@ -245,176 +350,7 @@ local viewPlayerToggle = CreateToggleButton("View Player", false, function(state
     end
 end)
 
--- ===== HITBOX EXPANDER =====
-local hitboxSize = 2
-local hitboxTransparency = 0.5
-local hitboxParts = {}
-
-local hitboxSlider = CreateSlider("Hitbox Size (1-5)", 1, 5, 2, function(value)
-    hitboxSize = value
-    UpdateHitboxes()
-end)
-
-local transparencySlider = CreateSlider("Hitbox Transparency (0-1)", 0, 1, 0.5, function(value)
-    hitboxTransparency = value
-    UpdateHitboxes()
-end)
-
-local hitboxToggle = CreateToggleButton("Hitbox", false, function(state)
-    UpdateHitboxes()
-end)
-
-local function UpdateHitboxes()
-    -- Limpar hitboxes antigas
-    for _, part in pairs(hitboxParts) do
-        if part:IsA("BasePart") then
-            part:Destroy()
-        end
-    end
-    hitboxParts = {}
-
-    if not hitboxToggle.GetState() then return end
-
-    -- Criar novas hitboxes
-    for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
-        if player ~= Player and player.Character then
-            for _, part in ipairs(player.Character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    local hitbox = Instance.new("BoxHandleAdornment")
-                    hitbox.Size = part.Size * hitboxSize
-                    hitbox.Transparency = hitboxTransparency
-                    hitbox.Color3 = Color3.fromRGB(255, 0, 0)
-                    hitbox.Adornee = part
-                    hitbox.AlwaysOnTop = true
-                    hitbox.ZIndex = 10
-                    hitbox.Parent = part
-                    table.insert(hitboxParts, hitbox)
-                end
-            end
-        end
-    end
-end
-
--- ===== AIMBOT =====
-local aimbotFOV = 100
-local aimbotTeamCheck = true
-
-local aimbotFOVSlider = CreateSlider("Aimbot FOV (10-200)", 10, 200, 100, function(value)
-    aimbotFOV = value
-end)
-
-local aimbotToggle = CreateToggleButton("Aimbot", false, function(state)
-    -- O estado é armazenado automaticamente
-end)
-
-local teamCheckToggle = CreateToggleButton("Team Check", true, function(state)
-    aimbotTeamCheck = state
-end)
-
--- Função principal do aimbot
-game:GetService("RunService").RenderStepped:Connect(function()
-    if aimbotToggle.GetState() and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-        local closestPlayer = nil
-        local closestDistance = aimbotFOV
-        
-        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
-            if player ~= Player and player.Character then
-                if aimbotTeamCheck and Player.Team and player.Team and Player.Team == player.Team then
-                    continue
-                end
-                
-                local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
-                if rootPart then
-                    local screenPoint = workspace.CurrentCamera:WorldToViewportPoint(rootPart.Position)
-                    local mousePos = game:GetService("UserInputService"):GetMouseLocation()
-                    local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - Vector2.new(mousePos.X, mousePos.Y)).Magnitude
-                    
-                    if distance < closestDistance then
-                        closestDistance = distance
-                        closestPlayer = player
-                    end
-                end
-            end
-        end
-        
-        if closestPlayer and closestPlayer.Character then
-            local target = closestPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if target then
-                workspace.CurrentCamera.CFrame = CFrame.lookAt(
-                    workspace.CurrentCamera.CFrame.Position,
-                    target.Position
-                )
-            end
-        end
-    end
-end)
-
--- ===== FLY HACK =====
-local flySpeed = 50
-local flySpeedSlider = CreateSlider("Fly Speed (1-100)", 1, 100, 50, function(value)
-    flySpeed = value
-end)
-
-local flyBodyGyro, flyBodyVelocity
-local flyKeys = {
-    [Enum.KeyCode.W] = Vector3.new(0, 0, -1),
-    [Enum.KeyCode.S] = Vector3.new(0, 0, 1),
-    [Enum.KeyCode.A] = Vector3.new(-1, 0, 0),
-    [Enum.KeyCode.D] = Vector3.new(1, 0, 0),
-    [Enum.KeyCode.Space] = Vector3.new(0, 1, 0),
-    [Enum.KeyCode.LeftShift] = Vector3.new(0, -1, 0)
-}
-
-local flyToggle = CreateToggleButton("Fly (WASD+Space/Shift)", false, function(state)
-    local torso = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
-    if not torso then return end
-    
-    if state then
-        -- Ativar fly
-        flyBodyGyro = Instance.new("BodyGyro")
-        flyBodyGyro.P = 9e4
-        flyBodyGyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
-        flyBodyGyro.cframe = torso.CFrame
-        flyBodyGyro.Parent = torso
-        
-        flyBodyVelocity = Instance.new("BodyVelocity")
-        flyBodyVelocity.velocity = Vector3.new(0, 0, 0)
-        flyBodyVelocity.maxForce = Vector3.new(9e9, 9e9, 9e9)
-        flyBodyVelocity.Parent = torso
-        
-        local flyConnection
-        flyConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if not flyToggle.GetState() or not Player.Character then
-                flyConnection:Disconnect()
-                return
-            end
-            
-            local torso = Player.Character:FindFirstChild("HumanoidRootPart")
-            if not torso then return end
-            
-            local camera = workspace.CurrentCamera
-            local moveDirection = Vector3.new()
-            
-            for key, direction in pairs(flyKeys) do
-                if game:GetService("UserInputService"):IsKeyDown(key) then
-                    local cameraSpaceDirection = camera.CFrame:VectorToWorldSpace(direction)
-                    moveDirection = moveDirection + cameraSpaceDirection * flySpeed
-                end
-            end
-            
-            torso.Velocity = moveDirection
-            if flyBodyGyro then
-                flyBodyGyro.cframe = camera.CFrame
-            end
-        end)
-    else
-        -- Desativar fly
-        if flyBodyGyro then flyBodyGyro:Destroy() end
-        if flyBodyVelocity then flyBodyVelocity:Destroy() end
-    end
-end)
-
--- ===== TELEPORT =====
+-- ===== TELEPORT (ON/OFF) =====
 local teleportToggle = CreateToggleButton("Teleport (T/Click)", false, function(state)
     -- O estado é armazenado automaticamente
 end)
@@ -441,7 +377,7 @@ teleportConnection = game:GetService("UserInputService").InputBegan:Connect(func
     end
 end)
 
--- ===== NOCLIP =====
+-- ===== NOCLIP (ON/OFF) =====
 local noclipToggle = CreateToggleButton("Noclip", false, function(state)
     if Player.Character then
         for _, part in pairs(Player.Character:GetDescendants()) do
@@ -470,7 +406,7 @@ local noclipToggle = CreateToggleButton("Noclip", false, function(state)
     end
 end)
 
--- ===== ANTI-AFK =====
+-- ===== ANTI-AFK (ON/OFF) =====
 local antiAfkToggle = CreateToggleButton("Anti-AFK", false, function(state)
     if state then
         local vu = game:GetService("VirtualUser")
@@ -482,7 +418,7 @@ local antiAfkToggle = CreateToggleButton("Anti-AFK", false, function(state)
     end
 end)
 
--- ===== WALKSPEED & JUMPPOWER =====
+-- ===== WALKSPEED & JUMPPOWER (SLIDERS) =====
 local walkSpeed = 16
 local walkSpeedSlider = CreateSlider("WalkSpeed (0-500)", 0, 500, 16, function(value)
     walkSpeed = value
@@ -527,4 +463,4 @@ Player.CharacterAdded:Connect(function(character)
     end
 end)
 
-print("🐉 Dr4gonHub Premium - Versão Completa carregada com sucesso!")
+print("🐉 Dr4gonHub Premium - Versão Final carregada com sucesso!")
