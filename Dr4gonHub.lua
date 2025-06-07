@@ -1,12 +1,10 @@
 --[[
-  🐉 Dr4gonHub Premium - Versão Completa
-  Design personalizado com tema do Aizen
-  Recursos:
-    - Fundo do Aizen personalizado
-    - Cores que combinam com a imagem
-    - Minimização transforma em bola clicável
-    - 4 Abas organizadas (Main, Scripts, Fun, Executors)
-    - Sistema de hitbox, aimbot e utilitários
+  🐉 Dr4gonHub Premium - Versão Modificada
+  Modificações:
+    - Fundo transparente com imagem do Aizen
+    - Bola minimizada substituída por Astolfo Chibi (redonda)
+    - Bola arrastável
+    - Interface completa com 4 abas funcionais
 ]]
 
 local Player = game:GetService("Players").LocalPlayer
@@ -30,7 +28,7 @@ local Theme = {
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0.35, 0, 0.45, 0)
 MainFrame.Position = UDim2.new(0.05, 0, 0.25, 0)
-MainFrame.BackgroundTransparency = 1
+MainFrame.BackgroundTransparency = 1 -- Fundo totalmente transparente
 MainFrame.Parent = ScreenGui
 
 -- Imagem de fundo do Aizen
@@ -43,12 +41,12 @@ BackgroundImage.ScaleType = Enum.ScaleType.Crop
 BackgroundImage.BackgroundTransparency = 1
 BackgroundImage.Parent = MainFrame
 
--- Overlay escuro para melhor legibilidade
+-- Overlay escuro para melhor legibilidade (mais transparente)
 local Overlay = Instance.new("Frame")
 Overlay.Size = UDim2.new(1, 0, 1, 0)
 Overlay.Position = UDim2.new(0, 0, 0, 0)
 Overlay.BackgroundColor3 = Theme.Background
-Overlay.BackgroundTransparency = 0.7
+Overlay.BackgroundTransparency = 0.85
 Overlay.BorderSizePixel = 0
 Overlay.Parent = MainFrame
 
@@ -331,19 +329,23 @@ local minimized = false
 local originalSize = MainFrame.Size
 local originalPosition = MainFrame.Position
 
--- Botão de bola quando minimizado
-local BallButton = Instance.new("TextButton")
-BallButton.Text = "⚪"
-BallButton.TextSize = 20
-BallButton.Size = UDim2.new(0, 40, 0, 40)
+-- Botão de bola quando minimizado (Astolfo Chibi)
+local BallButton = Instance.new("ImageButton")
+BallButton.Image = "https://i.pinimg.com/736x/a9/c7/dc/a9c7dcff56ecc0106ab3d02daa67873f.jpg"
+BallButton.Size = UDim2.new(0, 50, 0, 50)
 BallButton.Position = originalPosition
-BallButton.BackgroundColor3 = Theme.Primary
-BallButton.TextColor3 = Theme.Text
+BallButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+BallButton.BorderSizePixel = 0
 BallButton.Visible = false
 BallButton.ZIndex = 10
 BallButton.Parent = ScreenGui
 
--- Arrastar a janela
+-- Tornar a imagem redonda
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(1, 0)
+UICorner.Parent = BallButton
+
+-- Arrastar a janela principal
 local dragging = false
 local dragInput, dragStart, startPos
 
@@ -385,6 +387,46 @@ end)
 game:GetService("UserInputService").InputChanged:Connect(function(input)
     if input == dragInput and dragging and not minimized then
         UpdateInput(input)
+    end
+end)
+
+-- Arrastar a bola minimizada
+local draggingBall = false
+local dragInputBall, dragStartBall, startPosBall
+
+local function UpdateBallInput(input)
+    local delta = input.Position - dragStartBall
+    BallButton.Position = UDim2.new(
+        startPosBall.X.Scale, 
+        startPosBall.X.Offset + delta.X, 
+        startPosBall.Y.Scale, 
+        startPosBall.Y.Offset + delta.Y
+    )
+end
+
+BallButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        draggingBall = true
+        dragStartBall = input.Position
+        startPosBall = BallButton.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                draggingBall = false
+            end
+        end)
+    end
+end)
+
+BallButton.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInputBall = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInputBall and draggingBall then
+        UpdateBallInput(input)
     end
 end)
 
@@ -766,4 +808,4 @@ CreateLinkButton("Delta Executor", "https://deltaexploits.gg/android_dl", Execut
 
 CreateLinkButton("Krnl Executor", "https://www.mediafire.com/file/6fclnd4npho1ll1/krnl_release_2.675.715_2025.6.2_29.apk/file", ExecutorsContent)
 
-print("🐉 Dr4gonHub Premium - Versão Completa carregada com sucesso!")
+print("🐉 Dr4gonHub Premium - Versão Modificada carregada com sucesso!")
