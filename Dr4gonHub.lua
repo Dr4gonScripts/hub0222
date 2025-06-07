@@ -1,9 +1,11 @@
 --[[
   🐉 Dr4gonHub Premium - Versão Completa
+  Design personalizado com tema do Aizen
   Recursos:
+    - Fundo do Aizen personalizado
+    - Cores que combinam com a imagem
+    - Minimização transforma em bola clicável
     - 4 Abas organizadas (Main, Scripts, Fun, Executors)
-    - Divisórias por jogo (Grow a Garden, Blox Fruits, Muscles Legends, etc)
-    - Todos scripts solicitados organizados
     - Sistema de hitbox, aimbot e utilitários
 ]]
 
@@ -15,22 +17,51 @@ local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Dr4gonHubUI"
 ScreenGui.Parent = game:GetService("CoreGui")
 
+-- Configuração do tema baseado na imagem do Aizen
+local Theme = {
+    Background = Color3.fromRGB(10, 10, 20),
+    Primary = Color3.fromRGB(0, 74, 173),  -- Azul do Aizen
+    Secondary = Color3.fromRGB(188, 10, 28), -- Vermelho do Aizen
+    Accent = Color3.fromRGB(200, 200, 255),
+    Text = Color3.fromRGB(240, 240, 255)
+}
+
+-- Frame principal com imagem de fundo do Aizen
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0.35, 0, 0.45, 0)
 MainFrame.Position = UDim2.new(0.05, 0, 0.25, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-MainFrame.BorderSizePixel = 0
+MainFrame.BackgroundTransparency = 1
 MainFrame.Parent = ScreenGui
+
+-- Imagem de fundo do Aizen
+local BackgroundImage = Instance.new("ImageLabel")
+BackgroundImage.Name = "AizenBackground"
+BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
+BackgroundImage.Position = UDim2.new(0, 0, 0, 0)
+BackgroundImage.Image = "https://i.pinimg.com/736x/89/cb/fc/89cbfcef22a93b1fd10dd5abb28735e2.jpg"
+BackgroundImage.ScaleType = Enum.ScaleType.Crop
+BackgroundImage.BackgroundTransparency = 1
+BackgroundImage.Parent = MainFrame
+
+-- Overlay escuro para melhor legibilidade
+local Overlay = Instance.new("Frame")
+Overlay.Size = UDim2.new(1, 0, 1, 0)
+Overlay.Position = UDim2.new(0, 0, 0, 0)
+Overlay.BackgroundColor3 = Theme.Background
+Overlay.BackgroundTransparency = 0.7
+Overlay.BorderSizePixel = 0
+Overlay.Parent = MainFrame
 
 -- Barra de título
 local TitleBar = Instance.new("Frame")
 TitleBar.Size = UDim2.new(1, 0, 0, 30)
-TitleBar.BackgroundColor3 = Color3.fromRGB(188, 10, 28)
+TitleBar.BackgroundColor3 = Theme.Secondary
+TitleBar.BorderSizePixel = 0
 TitleBar.Parent = MainFrame
 
 local Title = Instance.new("TextLabel")
 Title.Text = "DR4GONHUB PREMIUM"
-Title.TextColor3 = Color3.new(1, 1, 1)
+Title.TextColor3 = Theme.Text
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 14
 Title.Size = UDim2.new(0.7, 0, 1, 0)
@@ -44,7 +75,7 @@ CloseButton.Text = "X"
 CloseButton.Size = UDim2.new(0, 30, 0, 30)
 CloseButton.Position = UDim2.new(1, -35, 0, 0)
 CloseButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-CloseButton.TextColor3 = Color3.new(1, 1, 1)
+CloseButton.TextColor3 = Theme.Text
 CloseButton.Font = Enum.Font.GothamBold
 CloseButton.TextSize = 16
 CloseButton.Parent = TitleBar
@@ -53,8 +84,8 @@ local MinimizeButton = Instance.new("TextButton")
 MinimizeButton.Text = "_"
 MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
 MinimizeButton.Position = UDim2.new(1, -70, 0, 0)
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-MinimizeButton.TextColor3 = Color3.new(1, 1, 1)
+MinimizeButton.BackgroundColor3 = Theme.Primary
+MinimizeButton.TextColor3 = Theme.Text
 MinimizeButton.Font = Enum.Font.GothamBold
 MinimizeButton.TextSize = 16
 MinimizeButton.Parent = TitleBar
@@ -63,108 +94,73 @@ MinimizeButton.Parent = TitleBar
 local TabBar = Instance.new("Frame")
 TabBar.Size = UDim2.new(1, 0, 0, 30)
 TabBar.Position = UDim2.new(0, 0, 0, 30)
-TabBar.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+TabBar.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 TabBar.BorderSizePixel = 0
 TabBar.Parent = MainFrame
 
 -- Configuração das abas
-local MainTab = Instance.new("TextButton")
-MainTab.Text = "Main"
-MainTab.Size = UDim2.new(0.25, 0, 1, 0)
-MainTab.Position = UDim2.new(0, 0, 0, 0)
-MainTab.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-MainTab.TextColor3 = Color3.new(1, 1, 1)
-MainTab.Font = Enum.Font.Gotham
-MainTab.TextSize = 12
-MainTab.Parent = TabBar
+local function CreateTab(name, position)
+    local tab = Instance.new("TextButton")
+    tab.Text = name
+    tab.Size = UDim2.new(0.25, 0, 1, 0)
+    tab.Position = position
+    tab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    tab.TextColor3 = Theme.Text
+    tab.Font = Enum.Font.Gotham
+    tab.TextSize = 12
+    tab.Parent = TabBar
+    
+    tab.MouseEnter:Connect(function()
+        if tab.BackgroundColor3 ~= Theme.Primary then
+            tab.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+        end
+    end)
+    
+    tab.MouseLeave:Connect(function()
+        if tab.BackgroundColor3 ~= Theme.Primary then
+            tab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+        end
+    end)
+    
+    return tab
+end
 
-local ScriptsTab = Instance.new("TextButton")
-ScriptsTab.Text = "Scripts"
-ScriptsTab.Size = UDim2.new(0.25, 0, 1, 0)
-ScriptsTab.Position = UDim2.new(0.25, 0, 0, 0)
-ScriptsTab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-ScriptsTab.TextColor3 = Color3.new(1, 1, 1)
-ScriptsTab.Font = Enum.Font.Gotham
-ScriptsTab.TextSize = 12
-ScriptsTab.Parent = TabBar
-
-local FunTab = Instance.new("TextButton")
-FunTab.Text = "Fun"
-FunTab.Size = UDim2.new(0.25, 0, 1, 0)
-FunTab.Position = UDim2.new(0.5, 0, 0, 0)
-FunTab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-FunTab.TextColor3 = Color3.new(1, 1, 1)
-FunTab.Font = Enum.Font.Gotham
-FunTab.TextSize = 12
-FunTab.Parent = TabBar
-
-local ExecutorsTab = Instance.new("TextButton")
-ExecutorsTab.Text = "Executors"
-ExecutorsTab.Size = UDim2.new(0.25, 0, 1, 0)
-ExecutorsTab.Position = UDim2.new(0.75, 0, 0, 0)
-ExecutorsTab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-ExecutorsTab.TextColor3 = Color3.new(1, 1, 1)
-ExecutorsTab.Font = Enum.Font.Gotham
-ExecutorsTab.TextSize = 12
-ExecutorsTab.Parent = TabBar
+local MainTab = CreateTab("Main", UDim2.new(0, 0, 0, 0))
+local ScriptsTab = CreateTab("Scripts", UDim2.new(0.25, 0, 0, 0))
+local FunTab = CreateTab("Fun", UDim2.new(0.5, 0, 0, 0))
+local ExecutorsTab = CreateTab("Executors", UDim2.new(0.75, 0, 0, 0))
 
 -- Áreas de conteúdo
-local MainContent = Instance.new("ScrollingFrame")
-MainContent.Name = "MainContent"
-MainContent.Size = UDim2.new(1, 0, 1, -65)
-MainContent.Position = UDim2.new(0, 0, 0, 65)
-MainContent.BackgroundTransparency = 1
-MainContent.ScrollBarThickness = 5
+local function CreateContentFrame(name)
+    local frame = Instance.new("ScrollingFrame")
+    frame.Name = name
+    frame.Size = UDim2.new(1, 0, 1, -65)
+    frame.Position = UDim2.new(0, 0, 0, 65)
+    frame.BackgroundTransparency = 1
+    frame.ScrollBarThickness = 5
+    frame.ScrollBarImageColor3 = Theme.Primary
+    frame.Visible = false
+    frame.Parent = MainFrame
+    
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 5)
+    layout.Parent = frame
+    
+    return frame
+end
+
+local MainContent = CreateContentFrame("MainContent")
 MainContent.CanvasSize = UDim2.new(0, 0, 0, 700)
 MainContent.Visible = true
-MainContent.Parent = MainFrame
 
-local ScriptsContent = Instance.new("ScrollingFrame")
-ScriptsContent.Name = "ScriptsContent"
-ScriptsContent.Size = UDim2.new(1, 0, 1, -65)
-ScriptsContent.Position = UDim2.new(0, 0, 0, 65)
-ScriptsContent.BackgroundTransparency = 1
-ScriptsContent.ScrollBarThickness = 5
-ScriptsContent.CanvasSize = UDim2.new(0, 0, 0, 1200) -- Aumentado para mais scripts
-ScriptsContent.Visible = false
-ScriptsContent.Parent = MainFrame
+local ScriptsContent = CreateContentFrame("ScriptsContent")
+ScriptsContent.CanvasSize = UDim2.new(0, 0, 0, 1200)
 
-local FunContent = Instance.new("ScrollingFrame")
-FunContent.Name = "FunContent"
-FunContent.Size = UDim2.new(1, 0, 1, -65)
-FunContent.Position = UDim2.new(0, 0, 0, 65)
-FunContent.BackgroundTransparency = 1
-FunContent.ScrollBarThickness = 5
+local FunContent = CreateContentFrame("FunContent")
 FunContent.CanvasSize = UDim2.new(0, 0, 0, 700)
-FunContent.Visible = false
-FunContent.Parent = MainFrame
 
-local ExecutorsContent = Instance.new("ScrollingFrame")
-ExecutorsContent.Name = "ExecutorsContent"
-ExecutorsContent.Size = UDim2.new(1, 0, 1, -65)
-ExecutorsContent.Position = UDim2.new(0, 0, 0, 65)
-ExecutorsContent.BackgroundTransparency = 1
-ExecutorsContent.ScrollBarThickness = 5
+local ExecutorsContent = CreateContentFrame("ExecutorsContent")
 ExecutorsContent.CanvasSize = UDim2.new(0, 0, 0, 300)
-ExecutorsContent.Visible = false
-ExecutorsContent.Parent = MainFrame
-
--- Layouts
-local UIListLayoutMain = Instance.new("UIListLayout")
-UIListLayoutMain.Padding = UDim.new(0, 5)
-UIListLayoutMain.Parent = MainContent
-
-local UIListLayoutScripts = Instance.new("UIListLayout")
-UIListLayoutScripts.Padding = UDim.new(0, 5)
-UIListLayoutScripts.Parent = ScriptsContent
-
-local UIListLayoutFun = Instance.new("UIListLayout")
-UIListLayoutFun.Padding = UDim.new(0, 5)
-UIListLayoutFun.Parent = FunContent
-
-local UIListLayoutExecutors = Instance.new("UIListLayout")
-UIListLayoutExecutors.Padding = UDim.new(0, 5)
-UIListLayoutExecutors.Parent = ExecutorsContent
 
 -- ===== FUNÇÕES AUXILIARES =====
 local function CreateButton(name, callback, parent)
@@ -172,24 +168,34 @@ local function CreateButton(name, callback, parent)
     button.Text = name
     button.Size = UDim2.new(0.9, 0, 0, 40)
     button.Position = UDim2.new(0.05, 0, 0, 0)
-    button.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    button.TextColor3 = Theme.Text
     button.Font = Enum.Font.Gotham
     button.TextSize = 14
+    button.BorderColor3 = Theme.Primary
+    button.BorderSizePixel = 1
     button.Parent = parent
     
+    button.MouseEnter:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+    end)
+    
+    button.MouseLeave:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    end)
+    
     local isActive = false
-    button.BackgroundColor3 = Color3.fromRGB(20, 50, 90)
+    button.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     
     button.MouseButton1Click:Connect(function()
         isActive = not isActive
-        button.BackgroundColor3 = isActive and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(20, 50, 90)
+        button.BackgroundColor3 = isActive and Theme.Primary or Color3.fromRGB(30, 30, 40)
         pcall(callback, isActive)
     end)
     
     return button, function(state)
         isActive = state
-        button.BackgroundColor3 = isActive and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(20, 50, 90)
+        button.BackgroundColor3 = isActive and Theme.Primary or Color3.fromRGB(30, 30, 40)
     end
 end
 
@@ -202,7 +208,7 @@ local function CreateSlider(name, min, max, default, callback, parent)
     local label = Instance.new("TextLabel")
     label.Text = name
     label.Size = UDim2.new(1, 0, 0, 20)
-    label.TextColor3 = Color3.fromRGB(200, 200, 200)
+    label.TextColor3 = Theme.Text
     label.BackgroundTransparency = 1
     label.Font = Enum.Font.Gotham
     label.TextSize = 14
@@ -213,10 +219,12 @@ local function CreateSlider(name, min, max, default, callback, parent)
     textBox.Text = tostring(default)
     textBox.Size = UDim2.new(1, 0, 0, 30)
     textBox.Position = UDim2.new(0, 0, 0, 25)
-    textBox.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
-    textBox.TextColor3 = Color3.new(1, 1, 1)
+    textBox.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    textBox.TextColor3 = Theme.Text
     textBox.Font = Enum.Font.Gotham
     textBox.TextSize = 14
+    textBox.BorderColor3 = Theme.Primary
+    textBox.BorderSizePixel = 1
     textBox.Parent = sliderFrame
     
     local function updateValue(value)
@@ -240,7 +248,7 @@ end
 local function CreateDivider(text, parent)
     local divider = Instance.new("TextLabel")
     divider.Text = " "..text.." "
-    divider.TextColor3 = Color3.fromRGB(0, 74, 173)
+    divider.TextColor3 = Theme.Primary
     divider.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
     divider.Size = UDim2.new(0.9, 0, 0, 25)
     divider.Position = UDim2.new(0.05, 0, 0, 0)
@@ -248,7 +256,7 @@ local function CreateDivider(text, parent)
     divider.TextSize = 14
     divider.TextXAlignment = Enum.TextXAlignment.Center
     divider.BorderSizePixel = 1
-    divider.BorderColor3 = Color3.fromRGB(50, 50, 70)
+    divider.BorderColor3 = Theme.Primary
     divider.Parent = parent
     
     return divider
@@ -259,18 +267,29 @@ local function CreateScriptButton(name, script, parent)
     button.Text = name
     button.Size = UDim2.new(0.9, 0, 0, 40)
     button.Position = UDim2.new(0.05, 0, 0, 0)
-    button.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    button.TextColor3 = Theme.Text
     button.Font = Enum.Font.Gotham
     button.TextSize = 14
+    button.BorderColor3 = Theme.Primary
+    button.BorderSizePixel = 1
     button.Parent = parent
+    
+    button.MouseEnter:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    end)
+    
+    button.MouseLeave:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    end)
     
     button.MouseButton1Click:Connect(function()
         loadstring(script)()
         game:GetService("StarterGui"):SetCore("SendNotification", {
             Title = "Dr4gonHub",
             Text = name .. " carregado!",
-            Duration = 3
+            Duration = 3,
+            Icon = "rbxassetid://0"
         })
     end)
 end
@@ -280,18 +299,29 @@ local function CreateLinkButton(name, url, parent)
     button.Text = name
     button.Size = UDim2.new(0.9, 0, 0, 40)
     button.Position = UDim2.new(0.05, 0, 0, 0)
-    button.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    button.TextColor3 = Theme.Text
     button.Font = Enum.Font.Gotham
     button.TextSize = 14
+    button.BorderColor3 = Theme.Primary
+    button.BorderSizePixel = 1
     button.Parent = parent
+    
+    button.MouseEnter:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    end)
+    
+    button.MouseLeave:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    end)
     
     button.MouseButton1Click:Connect(function()
         setclipboard(url)
         game:GetService("StarterGui"):SetCore("SendNotification", {
             Title = "Dr4gonHub",
             Text = "Link copiado para a área de transferência!",
-            Duration = 3
+            Duration = 3,
+            Icon = "rbxassetid://0"
         })
     end)
 end
@@ -299,6 +329,64 @@ end
 -- ===== CONTROLES DE JANELA =====
 local minimized = false
 local originalSize = MainFrame.Size
+local originalPosition = MainFrame.Position
+
+-- Botão de bola quando minimizado
+local BallButton = Instance.new("TextButton")
+BallButton.Text = "⚪"
+BallButton.TextSize = 20
+BallButton.Size = UDim2.new(0, 40, 0, 40)
+BallButton.Position = originalPosition
+BallButton.BackgroundColor3 = Theme.Primary
+BallButton.TextColor3 = Theme.Text
+BallButton.Visible = false
+BallButton.ZIndex = 10
+BallButton.Parent = ScreenGui
+
+-- Arrastar a janela
+local dragging = false
+local dragInput, dragStart, startPos
+
+local function Lerp(a, b, t)
+    return a + (b - a) * t
+end
+
+local function UpdateInput(input)
+    local delta = input.Position - dragStart
+    MainFrame.Position = UDim2.new(
+        startPos.X.Scale, 
+        startPos.X.Offset + delta.X, 
+        startPos.Y.Scale, 
+        startPos.Y.Offset + delta.Y
+    )
+    BallButton.Position = MainFrame.Position
+end
+
+TitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+TitleBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging and not minimized then
+        UpdateInput(input)
+    end
+end)
 
 CloseButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
@@ -307,33 +395,27 @@ end)
 MinimizeButton.MouseButton1Click:Connect(function()
     minimized = not minimized
     if minimized then
-        MainFrame.Size = UDim2.new(0.35, 0, 0, 30)
-        TabBar.Visible = false
-        MainContent.Visible = false
-        ScriptsContent.Visible = false
-        FunContent.Visible = false
-        ExecutorsContent.Visible = false
+        MainFrame.Visible = false
+        BallButton.Visible = true
+        BallButton.Position = MainFrame.Position
     else
-        MainFrame.Size = originalSize
-        TabBar.Visible = true
-        if MainTab.BackgroundColor3 == Color3.fromRGB(50, 50, 70) then
-            MainContent.Visible = true
-        elseif ScriptsTab.BackgroundColor3 == Color3.fromRGB(50, 50, 70) then
-            ScriptsContent.Visible = true
-        elseif FunTab.BackgroundColor3 == Color3.fromRGB(50, 50, 70) then
-            FunContent.Visible = true
-        else
-            ExecutorsContent.Visible = true
-        end
+        MainFrame.Visible = true
+        BallButton.Visible = false
     end
+end)
+
+BallButton.MouseButton1Click:Connect(function()
+    minimized = false
+    MainFrame.Visible = true
+    BallButton.Visible = false
 end)
 
 -- Controle de abas
 local function SwitchTab(selectedTab)
-    MainTab.BackgroundColor3 = (selectedTab == MainTab) and Color3.fromRGB(50, 50, 70) or Color3.fromRGB(40, 40, 50)
-    ScriptsTab.BackgroundColor3 = (selectedTab == ScriptsTab) and Color3.fromRGB(50, 50, 70) or Color3.fromRGB(40, 40, 50)
-    FunTab.BackgroundColor3 = (selectedTab == FunTab) and Color3.fromRGB(50, 50, 70) or Color3.fromRGB(40, 40, 50)
-    ExecutorsTab.BackgroundColor3 = (selectedTab == ExecutorsTab) and Color3.fromRGB(50, 50, 70) or Color3.fromRGB(40, 40, 50)
+    MainTab.BackgroundColor3 = (selectedTab == MainTab) and Theme.Primary or Color3.fromRGB(40, 40, 50)
+    ScriptsTab.BackgroundColor3 = (selectedTab == ScriptsTab) and Theme.Primary or Color3.fromRGB(40, 40, 50)
+    FunTab.BackgroundColor3 = (selectedTab == FunTab) and Theme.Primary or Color3.fromRGB(40, 40, 50)
+    ExecutorsTab.BackgroundColor3 = (selectedTab == ExecutorsTab) and Theme.Primary or Color3.fromRGB(40, 40, 50)
     
     MainContent.Visible = (selectedTab == MainTab)
     ScriptsContent.Visible = (selectedTab == ScriptsTab)
@@ -380,7 +462,7 @@ local function UpdateHitboxes()
                     local hitbox = Instance.new("BoxHandleAdornment")
                     hitbox.Size = part.Size * hitboxSize
                     hitbox.Transparency = hitboxTransparency
-                    hitbox.Color3 = Color3.fromRGB(255, 0, 0)
+                    hitbox.Color3 = Theme.Secondary
                     hitbox.Adornee = part
                     hitbox.AlwaysOnTop = true
                     hitbox.ZIndex = 10
@@ -410,15 +492,16 @@ local function CreateTargetView()
     targetView = Instance.new("TextLabel")
     targetView.Name = "TargetView"
     targetView.Text = "Target: None"
-    targetView.TextColor3 = Color3.new(1, 1, 1)
+    targetView.TextColor3 = Theme.Text
     targetView.Font = Enum.Font.GothamBold
     targetView.TextSize = 16
     targetView.Size = UDim2.new(0, 200, 0, 30)
     targetView.Position = UDim2.new(0.5, -100, 0, 50)
-    targetView.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    targetView.BackgroundColor3 = Theme.Background
     targetView.BackgroundTransparency = 0.5
     targetView.BorderSizePixel = 0
     targetView.Visible = false
+    targetView.ZIndex = 100
     targetView.Parent = ScreenGui
     
     return targetView
@@ -513,7 +596,8 @@ local flyButton, setFlyState = CreateButton("Fly (Universal)", function(state)
         game:GetService("StarterGui"):SetCore("SendNotification", {
             Title = "Dr4gonHub",
             Text = "Use o comando do script de fly para desativar",
-            Duration = 5
+            Duration = 5,
+            Icon = "rbxassetid://0"
         })
     end
 end, MainContent)
@@ -663,8 +747,6 @@ CreateScriptButton("Blue Lock Rivals",
 
 -- GENERAL SCRIPTS
 CreateDivider("GERAL", ScriptsContent)
-
-
 
 CreateScriptButton("Speed Hub X (Geral)", 
     [[loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()]], 
